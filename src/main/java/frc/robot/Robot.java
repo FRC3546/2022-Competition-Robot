@@ -7,13 +7,24 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
-import edu.wpi.first.wpilibj.motorcontrol.VictorSP;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
+import edu.wpi.first.wpilibj.motorcontrol.VictorSP;
+<<<<<<< HEAD
+import edu.wpi.first.wpilibj.motorcontrol.Spark;
+=======
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkMaxRelativeEncoder;
+>>>>>>> 2aa73e3e45339ce748720aabcadb10398f6010b5
 
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-
+import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.cameraserver.CameraServer;
+
+import edu.wpi.first.wpilibj.Timer;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -26,19 +37,44 @@ import edu.wpi.first.wpilibj.Joystick;
 
 public class Robot extends TimedRobot {
   private DifferentialDrive robot_motors;
+  
   private Joystick left_driver_controller;
   private Joystick right_driver_controller;
 
+  private DoubleSolenoid IntakeSolenoid;
+  private DoubleSolenoid EscapementSolenoid;
+  private DoubleSolenoid Climber1Solenoid;
+  private DoubleSolenoid Climber2Solenoid;
+
+
+  private final Timer timer = new Timer();
+
   private static final String kDefaultAuto = "Default";
-  private static final String kCustomAuto = "My Auto";
+  private static final String kRightSide = "Right Side";
+  private static final String kLeftSide = "Left Side";
+  
   private String m_autoSelected;
+  private String m_autoCargo;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
+  
+  private static final String kRightCargo = "Right Cargo";
+  private static final String kLeftCargo = "Left Cargo";
 
+  private final SendableChooser<String> m_cargochooser = new SendableChooser<>();
 
-  private VictorSP left_motor_control = new VictorSP(6);
+  private VictorSP left_motor_control = new VictorSP(0);
   private VictorSP right_motor_control = new VictorSP(2);
+<<<<<<< HEAD
 
   private Spark climber_extension = new Spark(7);
+=======
+  private VictorSP outer_intake_motor = new VictorSP(4);
+  private VictorSP inner_intake_motor = new VictorSP(5);
+  private VictorSP conveyor_motor = new VictorSP(6);
+  private Spark climber_motor = new Spark(7);
+  private CANSparkMax shooter_motor = new CANSparkMax(28, MotorType.kBrushless);
+
+>>>>>>> 2aa73e3e45339ce748720aabcadb10398f6010b5
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -46,16 +82,26 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
-    m_chooser.addOption("My Auto", kCustomAuto);
-    SmartDashboard.putData("Auto choices", m_chooser);
+    m_chooser.addOption("Right Side", kRightSide);
+    m_chooser.addOption("Left Side", kLeftSide);
+    SmartDashboard.putData("Robot Tarmac Options", m_chooser);
+
+    m_cargochooser.addOption("Right Cargo", kRightCargo);
+    m_cargochooser.addOption("Left Cargo", kLeftCargo);
+    SmartDashboard.putData("Cargo Options", m_cargochooser);
+
 
     robot_motors = new DifferentialDrive(left_motor_control, right_motor_control);
 
     left_driver_controller= new Joystick(1);
     right_driver_controller = new Joystick(0);
 
-
-
+    IntakeSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 0, 1);
+    EscapementSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2, 3);
+    Climber1Solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 4, 5);
+    Climber2Solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 0, 1);
+        
+    CameraServer.startAutomaticCapture();
 
   }
 
@@ -82,8 +128,12 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     m_autoSelected = m_chooser.getSelected();
+    m_autoCargo = m_cargochooser.getSelected();
     // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     System.out.println("Auto selected: " + m_autoSelected);
+
+    timer.reset();
+    timer.start();
 
   }
 
@@ -91,12 +141,32 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() {
     switch (m_autoSelected) {
-      case kCustomAuto:
-        // Put custom auto code here
-        break;
       case kDefaultAuto:
       default:
         // Put default auto code here
+        break;
+      case kRightSide:
+        if (m_autoCargo == kRightCargo){
+          robot_motors.tankDrive(0.5, 0.5);
+        }
+        
+        if (m_autoCargo == kLeftCargo){
+          robot_motors.tankDrive(-0.5, -0.5);
+        }
+        break;
+      
+        case kLeftSide:
+          if (m_autoCargo == kRightCargo){
+            robot_motors.tankDrive(0.5, -0.5);
+          }
+          
+          if (m_autoCargo == kRightCargo){
+            robot_motors.tankDrive(-0.5, 0.5);
+            if(timer.get() == 5){
+              robot_motors.stopMotor();
+            }
+          }
+        
         break;
     }
   }
