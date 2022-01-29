@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import edu.wpi.first.wpilibj.motorcontrol.VictorSP;
+import edu.wpi.first.wpilibj.motorcontrol.Spark;
 
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 
@@ -36,6 +37,8 @@ public class Robot extends TimedRobot {
 
   private VictorSP left_motor_control = new VictorSP(6);
   private VictorSP right_motor_control = new VictorSP(2);
+
+  private Spark climber_extension = new Spark(7);
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -108,7 +111,14 @@ public class Robot extends TimedRobot {
 
     robot_motors.tankDrive(left_driver_controller.getY(), right_driver_controller.getY());
 
-
+    if(right_driver_controller.getRawButton(12))
+    {
+    climber_extension.set(.9);
+    }
+    else
+    {
+    climber_extension.set(0);
+    }
 
   }
 
