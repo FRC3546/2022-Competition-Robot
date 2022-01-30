@@ -9,18 +9,16 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import edu.wpi.first.wpilibj.motorcontrol.VictorSP;
-<<<<<<< HEAD
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
-=======
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxRelativeEncoder;
->>>>>>> 2aa73e3e45339ce748720aabcadb10398f6010b5
 
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.cameraserver.CameraServer;
 
@@ -40,6 +38,38 @@ public class Robot extends TimedRobot {
   
   private Joystick left_driver_controller;
   private Joystick right_driver_controller;
+  private Joystick codriver_controller;
+
+  private JoystickButton Intake;
+  // private JoystickButton Lbutton2;
+  // private JoystickButton Lbutton3;
+  // private JoystickButton Lbutton4;
+  // private JoystickButton Lbutton5;
+  // private JoystickButton Lbutton6;
+  // private JoystickButton Lbutton7;
+  // private JoystickButton Lbutton8;
+
+  // private JoystickButton Rbutton1;
+  // private JoystickButton Rbutton2;
+  // private JoystickButton Rbutton3;
+  // private JoystickButton Rbutton4;
+  // private JoystickButton Rbutton5;
+  // private JoystickButton Rbutton6;
+  // private JoystickButton Rbutton7;
+  // private JoystickButton Rbutton8;
+
+  private JoystickButton climbExtend;
+  private JoystickButton climbRetract;
+  private JoystickButton shooter;
+  private JoystickButton conveyor;
+  private JoystickButton escapmentRetract;
+  private JoystickButton escapmentExtend;
+  private JoystickButton raiseIntake;
+  private JoystickButton lowerIntake;
+  // private JoystickButton Cobutton9;
+  // private JoystickButton Cobutton10;
+  // private JoystickButton Cobutton11;
+  // private JoystickButton Cobutton12;
 
   private DoubleSolenoid IntakeSolenoid;
   private DoubleSolenoid EscapementSolenoid;
@@ -64,17 +94,14 @@ public class Robot extends TimedRobot {
 
   private VictorSP left_motor_control = new VictorSP(0);
   private VictorSP right_motor_control = new VictorSP(2);
-<<<<<<< HEAD
 
   private Spark climber_extension = new Spark(7);
-=======
   private VictorSP outer_intake_motor = new VictorSP(4);
   private VictorSP inner_intake_motor = new VictorSP(5);
   private VictorSP conveyor_motor = new VictorSP(6);
   private Spark climber_motor = new Spark(7);
   private CANSparkMax shooter_motor = new CANSparkMax(28, MotorType.kBrushless);
 
->>>>>>> 2aa73e3e45339ce748720aabcadb10398f6010b5
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -93,8 +120,42 @@ public class Robot extends TimedRobot {
 
     robot_motors = new DifferentialDrive(left_motor_control, right_motor_control);
 
-    left_driver_controller= new Joystick(1);
-    right_driver_controller = new Joystick(0);
+    left_driver_controller= new Joystick(0);
+    right_driver_controller = new Joystick(1);
+
+    codriver_controller = new Joystick(2);
+
+    // Lbutton1 = new JoystickButton(left_driver_controller, 1);
+    // Lbutton2 = new JoystickButton(left_driver_controller, 2);
+    // Lbutton3 = new JoystickButton(left_driver_controller, 3);
+    // Lbutton4 = new JoystickButton(left_driver_controller, 4);
+    // Lbutton5 = new JoystickButton(left_driver_controller, 5);
+    // Lbutton6 = new JoystickButton(left_driver_controller, 6);
+    // Lbutton7 = new JoystickButton(left_driver_controller, 7);
+    // Lbutton8 = new JoystickButton(left_driver_controller, 8);
+
+    Intake = new JoystickButton(right_driver_controller, 1);
+    // Rbutton2 = new JoystickButton(right_driver_controller, 2);
+    // Rbutton3 = new JoystickButton(right_driver_controller, 3);
+    // Rbutton4 = new JoystickButton(right_driver_controller, 4);
+    // Rbutton5 = new JoystickButton(right_driver_controller, 5);
+    // Rbutton6 = new JoystickButton(right_driver_controller, 6);
+    // Rbutton7 = new JoystickButton(right_driver_controller, 7);
+    // Rbutton8 = new JoystickButton(right_driver_controller, 8);
+
+
+    shooter = new JoystickButton(codriver_controller, 1);
+    conveyor = new JoystickButton(codriver_controller, 2);
+    // Lbutton5 = new JoystickButton(codriver_controller, 3);
+    // Lbutton6 = new JoystickButton(codriver_controller, 4);
+    // Lbutton7 = new JoystickButton(codriver_controller, 5);
+    // Lbutton8 = new JoystickButton(codriver_controller, 6);
+    raiseIntake = new JoystickButton(codriver_controller, 7);
+    lowerIntake = new JoystickButton(codriver_controller, 8);
+    escapmentRetract = new JoystickButton(codriver_controller, 9);
+    escapmentExtend = new JoystickButton(codriver_controller, 10);
+    climbExtend = new JoystickButton(codriver_controller, 11);
+    climbRetract = new JoystickButton(codriver_controller, 12);
 
     IntakeSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 0, 1);
     EscapementSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2, 3);
