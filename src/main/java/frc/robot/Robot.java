@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import edu.wpi.first.wpilibj.motorcontrol.VictorSP;
-
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
@@ -103,6 +102,7 @@ public class Robot extends TimedRobot {
   private VictorSP conveyor_motor = new VictorSP(6);
   private Spark climber_extension = new Spark(7);
   //private CANSparkMax shooter_motor = new CANSparkMax(28, MotorType.kBrushless);
+  // private CANSparkMax shooter_motor = new CANSparkMax(28, MotorType.kBrushless);
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -254,6 +254,10 @@ public class Robot extends TimedRobot {
     // {
     // climber_extension.set(0);
     // }
+      if(codriver_controller.getRawButton(12))
+      {
+        System.out.println("button 12 pushed");
+      }
 
   }
 
