@@ -9,11 +9,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import edu.wpi.first.wpilibj.motorcontrol.VictorSP;
-import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxRelativeEncoder;
 
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
@@ -40,6 +37,8 @@ public class Robot extends TimedRobot {
   private Joystick right_driver_controller;
   private Joystick codriver_controller;
 
+
+  //Left Driver Buttons
   private JoystickButton Intake;
   // private JoystickButton Lbutton2;
   // private JoystickButton Lbutton3;
@@ -49,6 +48,7 @@ public class Robot extends TimedRobot {
   // private JoystickButton Lbutton7;
   // private JoystickButton Lbutton8;
 
+  //Right Driver Buttons
   // private JoystickButton Rbutton1;
   // private JoystickButton Rbutton2;
   // private JoystickButton Rbutton3;
@@ -58,6 +58,7 @@ public class Robot extends TimedRobot {
   // private JoystickButton Rbutton7;
   // private JoystickButton Rbutton8;
 
+  //Codriver Buttons
   private JoystickButton climbExtend;
   private JoystickButton climbRetract;
   private JoystickButton shooter;
@@ -99,8 +100,7 @@ public class Robot extends TimedRobot {
   private VictorSP outer_intake_motor = new VictorSP(4);
   private VictorSP inner_intake_motor = new VictorSP(5);
   private VictorSP conveyor_motor = new VictorSP(6);
-  private Spark climber_motor = new Spark(7);
-  private CANSparkMax shooter_motor = new CANSparkMax(28, MotorType.kBrushless);
+  // private CANSparkMax shooter_motor = new CANSparkMax(28, MotorType.kBrushless);
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -160,7 +160,7 @@ public class Robot extends TimedRobot {
     IntakeSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 0, 1);
     EscapementSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2, 3);
     Climber1Solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 4, 5);
-    Climber2Solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 0, 1);
+    Climber2Solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 6, 7);
         
     CameraServer.startAutomaticCapture();
 
@@ -242,14 +242,10 @@ public class Robot extends TimedRobot {
 
     robot_motors.tankDrive(left_driver_controller.getY(), right_driver_controller.getY());
 
-    if(right_driver_controller.getRawButton(12))
-    {
-    climber_extension.set(.9);
-    }
-    else
-    {
-    climber_extension.set(0);
-    }
+      if(codriver_controller.getRawButton())
+      {
+        System.out.println("button 12 pushed");
+      }
 
   }
 
