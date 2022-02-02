@@ -9,11 +9,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import edu.wpi.first.wpilibj.motorcontrol.VictorSP;
-import edu.wpi.first.wpilibj.motorcontrol.Spark;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxRelativeEncoder;
 
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
@@ -34,12 +32,13 @@ import edu.wpi.first.wpilibj.Timer;
 
 
 public class Robot extends TimedRobot {
-  private DifferentialDrive robot_motors;
+  private DifferentialDrive drive_train;
   
   private Joystick left_driver_controller;
   private Joystick right_driver_controller;
   private Joystick codriver_controller;
 
+  // Driver left controller buttons
   private JoystickButton Intake;
   // private JoystickButton Lbutton2;
   // private JoystickButton Lbutton3;
@@ -48,7 +47,9 @@ public class Robot extends TimedRobot {
   // private JoystickButton Lbutton6;
   // private JoystickButton Lbutton7;
   // private JoystickButton Lbutton8;
-
+  
+  
+  // Driver right controller buttons
   // private JoystickButton Rbutton1;
   // private JoystickButton Rbutton2;
   // private JoystickButton Rbutton3;
@@ -58,6 +59,7 @@ public class Robot extends TimedRobot {
   // private JoystickButton Rbutton7;
   // private JoystickButton Rbutton8;
 
+  // Co-driver buttons
   private JoystickButton climbExtend;
   private JoystickButton climbRetract;
   private JoystickButton shooter;
@@ -79,6 +81,7 @@ public class Robot extends TimedRobot {
 
   private final Timer timer = new Timer();
 
+
   private static final String kDefaultAuto = "Default";
   private static final String kRightSide = "Right Side";
   private static final String kLeftSide = "Left Side";
@@ -95,12 +98,11 @@ public class Robot extends TimedRobot {
   private VictorSP left_motor_control = new VictorSP(0);
   private VictorSP right_motor_control = new VictorSP(2);
 
-  private Spark climber_extension = new Spark(7);
   private VictorSP outer_intake_motor = new VictorSP(4);
   private VictorSP inner_intake_motor = new VictorSP(5);
   private VictorSP conveyor_motor = new VictorSP(6);
-  private Spark climber_motor = new Spark(7);
-  private CANSparkMax shooter_motor = new CANSparkMax(28, MotorType.kBrushless);
+  private Spark climber_extension = new Spark(7);
+  //private CANSparkMax shooter_motor = new CANSparkMax(28, MotorType.kBrushless);
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -108,6 +110,10 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
+
+    left_motor_control.setInverted(true);
+    right_motor_control.setInverted(true);
+
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("Right Side", kRightSide);
     m_chooser.addOption("Left Side", kLeftSide);
@@ -117,8 +123,7 @@ public class Robot extends TimedRobot {
     m_cargochooser.addOption("Left Cargo", kLeftCargo);
     SmartDashboard.putData("Cargo Options", m_cargochooser);
 
-
-    robot_motors = new DifferentialDrive(left_motor_control, right_motor_control);
+    drive_train = new DifferentialDrive(left_motor_control, right_motor_control);
 
     left_driver_controller= new Joystick(0);
     right_driver_controller = new Joystick(1);
@@ -143,7 +148,6 @@ public class Robot extends TimedRobot {
     // Rbutton7 = new JoystickButton(right_driver_controller, 7);
     // Rbutton8 = new JoystickButton(right_driver_controller, 8);
 
-
     shooter = new JoystickButton(codriver_controller, 1);
     conveyor = new JoystickButton(codriver_controller, 2);
     // Lbutton5 = new JoystickButton(codriver_controller, 3);
@@ -160,7 +164,7 @@ public class Robot extends TimedRobot {
     IntakeSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 0, 1);
     EscapementSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2, 3);
     Climber1Solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 4, 5);
-    Climber2Solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 0, 1);
+    Climber2Solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 6, 7);
         
     CameraServer.startAutomaticCapture();
 
@@ -208,23 +212,23 @@ public class Robot extends TimedRobot {
         break;
       case kRightSide:
         if (m_autoCargo == kRightCargo){
-          robot_motors.tankDrive(0.5, 0.5);
+          drive_train.tankDrive(0.5, 0.5);
         }
         
         if (m_autoCargo == kLeftCargo){
-          robot_motors.tankDrive(-0.5, -0.5);
+          drive_train.tankDrive(-0.5, -0.5);
         }
         break;
       
         case kLeftSide:
           if (m_autoCargo == kRightCargo){
-            robot_motors.tankDrive(0.5, -0.5);
+            drive_train.tankDrive(0.5, -0.5);
           }
           
-          if (m_autoCargo == kRightCargo){
-            robot_motors.tankDrive(-0.5, 0.5);
+          if (m_autoCargo == kLeftCargo){
+            drive_train.tankDrive(-0.5, 0.5);
             if(timer.get() == 5){
-              robot_motors.stopMotor();
+              drive_train.stopMotor();
             }
           }
         
@@ -240,16 +244,16 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
 
-    robot_motors.tankDrive(left_driver_controller.getY(), right_driver_controller.getY());
+    drive_train.tankDrive(left_driver_controller.getY(), right_driver_controller.getY());
 
-    if(right_driver_controller.getRawButton(12))
-    {
-    climber_extension.set(.9);
-    }
-    else
-    {
-    climber_extension.set(0);
-    }
+    // if(right_driver_controller.getRawButton(12))
+    // {
+    // climber_extension.set(.9);
+    // }
+    // else
+    // {
+    // climber_extension.set(0);
+    // }
 
   }
 
