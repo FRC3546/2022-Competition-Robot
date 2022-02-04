@@ -80,18 +80,17 @@ public class Robot extends TimedRobot {
 
   private final Timer timer = new Timer();
 
-
-  private static final String kDefaultAuto = "Default";
-  private static final String kRightSide = "Right Side";
-  private static final String kLeftSide = "Left Side";
-  
   private String m_autoSelected;
   private String m_autoCargo;
-  private final SendableChooser<String> m_chooser = new SendableChooser<>();
-  
-  private static final String kRightCargo = "Right Cargo";
-  private static final String kLeftCargo = "Left Cargo";
 
+  private static final String GetCargo = "Get the Cargo";
+  private static final String LeaveTarmac = "Leave Tarmac";
+  private static final String Nothing = "Do Nothing";
+  private final SendableChooser<String> m_routines = new SendableChooser<>();
+  
+  private static final String WallCargo = "Wall Cargo";
+  private static final String TerminalCargo = "Terminal Cargo";
+  private static final String HangarCargo = "Hanger Cargo";
   private final SendableChooser<String> m_cargochooser = new SendableChooser<>();
 
   private VictorSP left_motor_control = new VictorSP(0);
@@ -114,13 +113,14 @@ public class Robot extends TimedRobot {
     left_motor_control.setInverted(true);
     right_motor_control.setInverted(true);
 
-    m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
-    m_chooser.addOption("Right Side", kRightSide);
-    m_chooser.addOption("Left Side", kLeftSide);
-    SmartDashboard.putData("Robot Tarmac Options", m_chooser);
+    m_routines.setDefaultOption("Get the Cargo", GetCargo);
+    m_routines.addOption("Leave Tarmac", LeaveTarmac);
+    m_routines.addOption("Do nothing", Nothing);
+    SmartDashboard.putData("Robot Routines", m_routines);
 
-    m_cargochooser.addOption("Right Cargo", kRightCargo);
-    m_cargochooser.addOption("Left Cargo", kLeftCargo);
+    m_cargochooser.addOption("Wall Cargo", WallCargo);
+    m_cargochooser.addOption("Terminal Cargo", TerminalCargo);
+    m_cargochooser.addOption("Hangar Cargo", HangarCargo);
     SmartDashboard.putData("Cargo Options", m_cargochooser);
 
     drive_train = new DifferentialDrive(left_motor_control, right_motor_control);
@@ -192,7 +192,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-    m_autoSelected = m_chooser.getSelected();
+    m_autoSelected = m_routines.getSelected();
     m_autoCargo = m_cargochooser.getSelected();
     // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     System.out.println("Auto selected: " + m_autoSelected);
@@ -206,31 +206,29 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() {
     switch (m_autoSelected) {
-      case kDefaultAuto:
+      case GetCargo:
       default:
-        // Put default auto code here
-        break;
-      case kRightSide:
-        if (m_autoCargo == kRightCargo){
-          drive_train.tankDrive(0.5, 0.5);
+        if (m_autoCargo == TerminalCargo){
+
         }
         
-        if (m_autoCargo == kLeftCargo){
-          drive_train.tankDrive(-0.5, -0.5);
+        if (m_autoCargo == HangarCargo){
+
+        }
+
+        if (m_autoCargo == WallCargo){
+
+        }
+        break;
+
+      case LeaveTarmac:{
+        drive_train.tankDrive(0.5, 0.5);
         }
         break;
       
-        case kLeftSide:
-          if (m_autoCargo == kRightCargo){
-            drive_train.tankDrive(0.5, -0.5);
-          }
-          
-          if (m_autoCargo == kLeftCargo){
-            drive_train.tankDrive(-0.5, 0.5);
-            if(timer.get() == 5){
-              drive_train.stopMotor();
-            }
-          }
+        case Nothing:{      
+            // Does nothing LOL
+        }
         
         break;
     }
