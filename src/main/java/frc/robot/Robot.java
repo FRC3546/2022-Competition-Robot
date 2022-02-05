@@ -18,6 +18,11 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.cameraserver.CameraServer;
+import com.kauailabs.navx.frc.AHRS;
+import edu.wpi.first.wpilibj.SerialPort;
+
+import edu.wpi.first.wpilibj.shuffleboard.*;
+
 
 import edu.wpi.first.wpilibj.Timer;
 
@@ -103,6 +108,10 @@ public class Robot extends TimedRobot {
   //private CANSparkMax shooter_motor = new CANSparkMax(28, MotorType.kBrushless);
   // private CANSparkMax shooter_motor = new CANSparkMax(28, MotorType.kBrushless);
 
+  AHRS gyro = new AHRS(SerialPort.Port.kUSB);
+
+  final double kP = 1;
+
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -122,6 +131,10 @@ public class Robot extends TimedRobot {
     m_cargochooser.addOption("Terminal Cargo", TerminalCargo);
     m_cargochooser.addOption("Hangar Cargo", HangarCargo);
     SmartDashboard.putData("Cargo Options", m_cargochooser);
+
+    SmartDashboard.putData("Gyro", gyro);
+    Shuffleboard.getTab("Example tab").add(gyro);
+
 
     drive_train = new DifferentialDrive(left_motor_control, right_motor_control);
 
@@ -243,6 +256,23 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
 
     drive_train.tankDrive(left_driver_controller.getY(), right_driver_controller.getY());
+
+
+
+      boolean intakeRunning = Intake.get();
+      if(intakeRunning)
+      {
+        outer_intake_motor.set(1);
+      }
+      else{
+        outer_intake_motor.set(0);
+      }
+
+      
+      if(right_driver_controller.getRawButton(8))
+      {
+        gyro.zeroYaw();
+      }
 
     // if(right_driver_controller.getRawButton(12))
     // {
