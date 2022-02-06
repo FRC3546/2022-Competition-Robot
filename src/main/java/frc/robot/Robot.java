@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj.shuffleboard.*;
 
 
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -38,20 +39,24 @@ import edu.wpi.first.wpilibj.Timer;
 public class Robot extends TimedRobot {
   private DifferentialDrive drive_train;
   
-  private Joystick left_driver_controller;
-  private Joystick right_driver_controller;
-  private Joystick codriver_controller;
+  private Joystick left_driver_controller= new Joystick(0);
+  private Joystick right_driver_controller = new Joystick(1);
+  private Joystick codriver_controller = new Joystick(2);
 
+  
+  
+  
+
+  
   // Driver left controller buttons
-  private JoystickButton Intake;
+  private JoystickButton IntakeButton = new JoystickButton(right_driver_controller, 1);
   // private JoystickButton Lbutton2;
   // private JoystickButton Lbutton3;
   // private JoystickButton Lbutton4;
   // private JoystickButton Lbutton5;
-  // private JoystickButton Lbutton6;
-  // private JoystickButton Lbutton7;
+  private JoystickButton DriveTrainReturnButton = new JoystickButton(right_driver_controller, 8);
+  private JoystickButton DriveTrainInvertButton = new JoystickButton(right_driver_controller, 7);
   // private JoystickButton Lbutton8;
-  
   
   // Driver right controller buttons
   // private JoystickButton Rbutton1;
@@ -61,13 +66,20 @@ public class Robot extends TimedRobot {
   // private JoystickButton Rbutton5;
   // private JoystickButton Rbutton6;
   // private JoystickButton Rbutton7;
-  // private JoystickButton Rbutton8;
+  private JoystickButton GyroResetButton = new JoystickButton(left_driver_controller, 10);
 
   // Co-driver buttons
-  private JoystickButton climbExtend;
-  private JoystickButton climbRetract;
-  private JoystickButton shooter;
-  private JoystickButton conveyor;
+  private JoystickButton ShooterOnButton = new JoystickButton(codriver_controller, 6);
+  private JoystickButton ShooterOffButton = new JoystickButton(codriver_controller, 4);
+  private JoystickButton ConveyorForwardButton = new JoystickButton(codriver_controller, 8);
+  private JoystickButton ConveyorReverseButton = new JoystickButton(codriver_controller, 12);
+  private JoystickButton ConveyorStopButton = new JoystickButton(codriver_controller, 10);
+
+
+  private JoystickButton ClimberExtendButton = new JoystickButton(codriver_controller, 11);
+  private JoystickButton ClimbRetractButton = new JoystickButton(codriver_controller, 12);
+
+
   private JoystickButton escapmentRetract;
   private JoystickButton escapmentExtend;
   private JoystickButton raiseIntake;
@@ -77,10 +89,9 @@ public class Robot extends TimedRobot {
   // private JoystickButton Cobutton11;
   // private JoystickButton Cobutton12;
 
-  private DoubleSolenoid IntakeSolenoid;
-  private DoubleSolenoid EscapementSolenoid;
-  private DoubleSolenoid Climber1Solenoid;
-  private DoubleSolenoid Climber2Solenoid;
+  private DoubleSolenoid Intake_Solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 0, 1);
+  private DoubleSolenoid CargoRelease_Solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2, 3);
+  private DoubleSolenoid Climber_Solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 4, 5);
 
 
   private final Timer timer = new Timer();
@@ -98,19 +109,76 @@ public class Robot extends TimedRobot {
   private static final String HangarCargo = "Hanger Cargo";
   private final SendableChooser<String> m_cargochooser = new SendableChooser<>();
 
-  private VictorSP left_motor_control = new VictorSP(0);
-  private VictorSP right_motor_control = new VictorSP(2);
+  private VictorSP left_motor = new VictorSP(0);
+  private VictorSP right_motor = new VictorSP(2);
 
-  private VictorSP outer_intake_motor = new VictorSP(4);
-  private VictorSP inner_intake_motor = new VictorSP(5);
+  private VictorSP intake_motor = new VictorSP(4);
   private VictorSP conveyor_motor = new VictorSP(6);
   private Spark climber_extension = new Spark(7);
-  //private CANSparkMax shooter_motor = new CANSparkMax(28, MotorType.kBrushless);
-  // private CANSparkMax shooter_motor = new CANSparkMax(28, MotorType.kBrushless);
+  private CANSparkMax shooter_motor = new CANSparkMax(28, MotorType.kBrushless);
 
   AHRS gyro = new AHRS(SerialPort.Port.kUSB);
 
   final double kP = 1;
+
+
+     // Methods for the Conveyor
+     public void ActivateConveyor()
+     {
+      conveyor_motor.set(1);
+    }
+    
+    public void DeactivateConveyor()
+    {
+      conveyor_motor.set(0);
+    }
+    
+    public void ReverseConveyor()
+    {
+      conveyor_motor.set(-0.5);
+    } 
+  
+    public void ActivateShooterMotor()
+    {
+     shooter_motor.set(1);
+    }
+  
+    public void DeactivateShooterMotor()
+    {
+      shooter_motor.set(0);
+    }
+  
+    public void TiltClimber()
+    {
+      Climber_Solenoid.set(Value.kForward);
+    }
+  
+    public void ReturnClimber()
+    {
+      Climber_Solenoid.set(Value.kReverse);
+    }
+  
+    // Methods for the Cargo
+    public void ReleaseCargo()
+    {
+      CargoRelease_Solenoid.set(Value.kForward);
+    }
+  
+    public void StopCargo()
+    {
+      CargoRelease_Solenoid.set(Value.kForward);
+    }
+
+    public void ActivateIntake()
+    {
+      intake_motor.set(1);
+      Intake_Solenoid.set(Value.kForward);
+    }
+
+    public void DeactivateIntake()
+    {
+      Intake_Solenoid.set(Value.kReverse);
+    }
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -119,8 +187,8 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
 
-    left_motor_control.setInverted(true);
-    right_motor_control.setInverted(true);
+    left_motor.setInverted(true);
+    right_motor.setInverted(true);
 
     m_routines.setDefaultOption("Get the Cargo", GetCargo);
     m_routines.addOption("Leave Tarmac", LeaveTarmac);
@@ -136,12 +204,8 @@ public class Robot extends TimedRobot {
     Shuffleboard.getTab("Example tab").add(gyro);
 
 
-    drive_train = new DifferentialDrive(left_motor_control, right_motor_control);
+    drive_train = new DifferentialDrive(left_motor, right_motor);
 
-    left_driver_controller= new Joystick(0);
-    right_driver_controller = new Joystick(1);
-
-    codriver_controller = new Joystick(2);
 
     // Lbutton1 = new JoystickButton(left_driver_controller, 1);
     // Lbutton2 = new JoystickButton(left_driver_controller, 2);
@@ -152,7 +216,6 @@ public class Robot extends TimedRobot {
     // Lbutton7 = new JoystickButton(left_driver_controller, 7);
     // Lbutton8 = new JoystickButton(left_driver_controller, 8);
 
-    Intake = new JoystickButton(right_driver_controller, 1);
     // Rbutton2 = new JoystickButton(right_driver_controller, 2);
     // Rbutton3 = new JoystickButton(right_driver_controller, 3);
     // Rbutton4 = new JoystickButton(right_driver_controller, 4);
@@ -161,8 +224,6 @@ public class Robot extends TimedRobot {
     // Rbutton7 = new JoystickButton(right_driver_controller, 7);
     // Rbutton8 = new JoystickButton(right_driver_controller, 8);
 
-    shooter = new JoystickButton(codriver_controller, 1);
-    conveyor = new JoystickButton(codriver_controller, 2);
     // Lbutton5 = new JoystickButton(codriver_controller, 3);
     // Lbutton6 = new JoystickButton(codriver_controller, 4);
     // Lbutton7 = new JoystickButton(codriver_controller, 5);
@@ -171,14 +232,10 @@ public class Robot extends TimedRobot {
     lowerIntake = new JoystickButton(codriver_controller, 8);
     escapmentRetract = new JoystickButton(codriver_controller, 9);
     escapmentExtend = new JoystickButton(codriver_controller, 10);
-    climbExtend = new JoystickButton(codriver_controller, 11);
-    climbRetract = new JoystickButton(codriver_controller, 12);
 
-    IntakeSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 0, 1);
-    EscapementSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2, 3);
-    Climber1Solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 4, 5);
-    Climber2Solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 6, 7);
-        
+    ReturnClimber();
+    StopCargo();
+
     CameraServer.startAutomaticCapture();
 
   }
@@ -258,18 +315,16 @@ public class Robot extends TimedRobot {
     drive_train.tankDrive(left_driver_controller.getY(), right_driver_controller.getY());
 
 
-
-      boolean intakeRunning = Intake.get();
-      if(intakeRunning)
+      if(IntakeButton.get())
       {
-        outer_intake_motor.set(1);
+        intake_motor.set(1);
       }
       else{
-        outer_intake_motor.set(0);
+        intake_motor.set(0);
       }
 
       
-      if(right_driver_controller.getRawButton(8))
+      if(GyroResetButton.get())
       {
         gyro.zeroYaw();
       }
