@@ -34,38 +34,21 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
  * project.
  */
 
-
-
 public class Robot extends TimedRobot {
   private DifferentialDrive drive_train;
   
+  // These are the definitions of the actual joysticks
   private Joystick left_driver_controller= new Joystick(0);
   private Joystick right_driver_controller = new Joystick(1);
   private Joystick codriver_controller = new Joystick(2);
-
-  
-  
-  
-
   
   // Driver left controller buttons
   private JoystickButton IntakeButton = new JoystickButton(right_driver_controller, 1);
-  // private JoystickButton Lbutton2;
-  // private JoystickButton Lbutton3;
-  // private JoystickButton Lbutton4;
-  // private JoystickButton Lbutton5;
   private JoystickButton DriveTrainReturnButton = new JoystickButton(right_driver_controller, 8);
   private JoystickButton DriveTrainInvertButton = new JoystickButton(right_driver_controller, 7);
-  // private JoystickButton Lbutton8;
+
   
   // Driver right controller buttons
-  // private JoystickButton Rbutton1;
-  // private JoystickButton Rbutton2;
-  // private JoystickButton Rbutton3;
-  // private JoystickButton Rbutton4;
-  // private JoystickButton Rbutton5;
-  // private JoystickButton Rbutton6;
-  // private JoystickButton Rbutton7;
   private JoystickButton GyroResetButton = new JoystickButton(left_driver_controller, 10);
 
   // Co-driver buttons
@@ -74,25 +57,12 @@ public class Robot extends TimedRobot {
   private JoystickButton ConveyorForwardButton = new JoystickButton(codriver_controller, 8);
   private JoystickButton ConveyorReverseButton = new JoystickButton(codriver_controller, 12);
   private JoystickButton ConveyorStopButton = new JoystickButton(codriver_controller, 10);
-
-
-  private JoystickButton ClimberExtendButton = new JoystickButton(codriver_controller, 11);
-  private JoystickButton ClimbRetractButton = new JoystickButton(codriver_controller, 12);
-
-
-  private JoystickButton escapmentRetract;
-  private JoystickButton escapmentExtend;
-  private JoystickButton raiseIntake;
-  private JoystickButton lowerIntake;
-  // private JoystickButton Cobutton9;
-  // private JoystickButton Cobutton10;
-  // private JoystickButton Cobutton11;
-  // private JoystickButton Cobutton12;
+  private JoystickButton ClimberTiltButton = new JoystickButton(codriver_controller, 11);
+  private JoystickButton ClimberReturnButton = new JoystickButton(codriver_controller, 9);
 
   private DoubleSolenoid Intake_Solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 0, 1);
   private DoubleSolenoid CargoRelease_Solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2, 3);
   private DoubleSolenoid Climber_Solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 4, 5);
-
 
   private final Timer timer = new Timer();
 
@@ -138,6 +108,8 @@ public class Robot extends TimedRobot {
       conveyor_motor.set(-0.5);
     } 
   
+
+    // Methods for the Shooter
     public void ActivateShooterMotor()
     {
      shooter_motor.set(1);
@@ -148,6 +120,8 @@ public class Robot extends TimedRobot {
       shooter_motor.set(0);
     }
   
+
+    // Methods for the Climber
     public void TiltClimber()
     {
       Climber_Solenoid.set(Value.kForward);
@@ -157,11 +131,12 @@ public class Robot extends TimedRobot {
     {
       Climber_Solenoid.set(Value.kReverse);
     }
+
   
     // Methods for the Cargo
     public void ReleaseCargo()
     {
-      CargoRelease_Solenoid.set(Value.kForward);
+      CargoRelease_Solenoid.set(Value.kReverse);
     }
   
     public void StopCargo()
@@ -169,6 +144,8 @@ public class Robot extends TimedRobot {
       CargoRelease_Solenoid.set(Value.kForward);
     }
 
+
+    // Methods for Intake
     public void ActivateIntake()
     {
       intake_motor.set(1);
@@ -178,6 +155,7 @@ public class Robot extends TimedRobot {
     public void DeactivateIntake()
     {
       Intake_Solenoid.set(Value.kReverse);
+      intake_motor.set(0);
     }
 
   /**
@@ -207,31 +185,6 @@ public class Robot extends TimedRobot {
     drive_train = new DifferentialDrive(left_motor, right_motor);
 
 
-    // Lbutton1 = new JoystickButton(left_driver_controller, 1);
-    // Lbutton2 = new JoystickButton(left_driver_controller, 2);
-    // Lbutton3 = new JoystickButton(left_driver_controller, 3);
-    // Lbutton4 = new JoystickButton(left_driver_controller, 4);
-    // Lbutton5 = new JoystickButton(left_driver_controller, 5);
-    // Lbutton6 = new JoystickButton(left_driver_controller, 6);
-    // Lbutton7 = new JoystickButton(left_driver_controller, 7);
-    // Lbutton8 = new JoystickButton(left_driver_controller, 8);
-
-    // Rbutton2 = new JoystickButton(right_driver_controller, 2);
-    // Rbutton3 = new JoystickButton(right_driver_controller, 3);
-    // Rbutton4 = new JoystickButton(right_driver_controller, 4);
-    // Rbutton5 = new JoystickButton(right_driver_controller, 5);
-    // Rbutton6 = new JoystickButton(right_driver_controller, 6);
-    // Rbutton7 = new JoystickButton(right_driver_controller, 7);
-    // Rbutton8 = new JoystickButton(right_driver_controller, 8);
-
-    // Lbutton5 = new JoystickButton(codriver_controller, 3);
-    // Lbutton6 = new JoystickButton(codriver_controller, 4);
-    // Lbutton7 = new JoystickButton(codriver_controller, 5);
-    // Lbutton8 = new JoystickButton(codriver_controller, 6);
-    raiseIntake = new JoystickButton(codriver_controller, 7);
-    lowerIntake = new JoystickButton(codriver_controller, 8);
-    escapmentRetract = new JoystickButton(codriver_controller, 9);
-    escapmentExtend = new JoystickButton(codriver_controller, 10);
 
     ReturnClimber();
     StopCargo();
@@ -323,11 +276,66 @@ public class Robot extends TimedRobot {
         intake_motor.set(0);
       }
 
+      if(DriveTrainInvertButton.get())
+      {
+
+      }
+      
+      
+      if(DriveTrainReturnButton.get())
+      {
+        
+      }
+
       
       if(GyroResetButton.get())
       {
         gyro.zeroYaw();
       }
+
+
+      if(ShooterOnButton.get())
+      {
+        ActivateShooterMotor();
+      }
+
+
+      if(ShooterOffButton.get())
+      {
+        DeactivateIntake();
+      }
+
+
+      if(ConveyorForwardButton.get())
+      {
+        ActivateConveyor();
+      }
+
+
+      if(ConveyorReverseButton.get())
+      {
+        ReverseConveyor();
+      }
+
+      if(ConveyorStopButton.get())
+      {
+        DeactivateConveyor();
+      }
+
+
+      if(ClimberTiltButton.get())
+      {
+        TiltClimber();
+      }
+
+
+      if(ClimberReturnButton.get())
+      {
+        ReturnClimber();
+      }
+
+
+
 
     // if(right_driver_controller.getRawButton(12))
     // {
