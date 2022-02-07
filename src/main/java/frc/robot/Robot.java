@@ -270,10 +270,10 @@ public class Robot extends TimedRobot {
 
       if(IntakeButton.get())
       {
-        intake_motor.set(1);
+        ActivateIntake();
       }
       else{
-        intake_motor.set(0);
+        DeactivateIntake();
       }
 
       if(DriveTrainInvertButton.get())
