@@ -322,10 +322,8 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
 
-    climber_extension.set(codriver_controller.getY());
 
     updateInversionValue();
-
 
 
     if (isInverted == true)
@@ -363,7 +361,7 @@ public class Robot extends TimedRobot {
 
       if(ShooterOffButton.get())
       {
-        DeactivateIntake();
+        DeactivateShooterMotor();
       }
 
 
@@ -384,16 +382,17 @@ public class Robot extends TimedRobot {
       }
 
 
-      if(ClimberTiltButton.get())
-      {
+      if(ClimberTiltButton.get()) {
         TiltClimber();
       }
-
-
-      if(ClimberReturnButton.get())
-      {
+      else if(ClimberReturnButton.get()) {
         ReturnClimber();
       }
+
+
+      
+    
+      climber_extension.set(codriver_controller.getY());
 
 
 
