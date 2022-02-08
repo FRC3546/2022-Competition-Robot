@@ -68,6 +68,8 @@ public class Robot extends TimedRobot {
 
   private final Timer timer = new Timer();
 
+  private boolean isInverted = false;
+
   private String m_autoSelected;
   private String m_autoCargo;
 
@@ -93,6 +95,18 @@ public class Robot extends TimedRobot {
 
   final double kP = 1;
 
+
+    public void updateInversionValue()
+    {
+      if(DriveTrainInvertButton.get())
+        {
+        isInverted = true;
+        }
+      if(DriveTrainReturnButton.get())
+      {
+        isInverted = false;
+      }
+    }
 
      // Methods for the Conveyor
      public void ActivateConveyor()
@@ -277,8 +291,15 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
 
-    drive_train.tankDrive(left_driver_controller.getY(), right_driver_controller.getY());
 
+    if (isInverted == true)
+    {
+      drive_train.tankDrive(left_driver_controller.getY() * -1, right_driver_controller.getY() * -1);
+    }
+    else
+    {
+      drive_train.tankDrive(left_driver_controller.getY(), right_driver_controller.getY());
+    }
 
       if(IntakeButton.get())
       {
@@ -288,16 +309,7 @@ public class Robot extends TimedRobot {
         DeactivateIntake();
       }
 
-      if(DriveTrainInvertButton.get())
-      {
 
-      }
-      
-      
-      if(DriveTrainReturnButton.get())
-      {
-        
-      }
 
       
       if(GyroResetButton.get())
