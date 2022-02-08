@@ -46,7 +46,6 @@ public class Robot extends TimedRobot {
   private JoystickButton IntakeButton = new JoystickButton(right_driver_controller, 1);
   private JoystickButton DriveTrainReturnButton = new JoystickButton(right_driver_controller, 8);
   private JoystickButton DriveTrainInvertButton = new JoystickButton(right_driver_controller, 7);
-
   
   // Driver right controller buttons
   private JoystickButton GyroResetButton = new JoystickButton(left_driver_controller, 10);
@@ -59,7 +58,10 @@ public class Robot extends TimedRobot {
   private JoystickButton ConveyorStopButton = new JoystickButton(codriver_controller, 10);
   private JoystickButton ClimberTiltButton = new JoystickButton(codriver_controller, 11);
   private JoystickButton ClimberReturnButton = new JoystickButton(codriver_controller, 9);
+  private JoystickButton HigherShootingSpeedButton = new JoystickButton(codriver_controller, 5);
+  private JoystickButton LowerShootingSpeedButton = new JoystickButton(codriver_controller, 3);
 
+  
   private DoubleSolenoid Intake_Solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 0, 1);
   private DoubleSolenoid CargoRelease_Solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2, 3);
   private DoubleSolenoid Climber_Solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 4, 5);
@@ -136,6 +138,16 @@ public class Robot extends TimedRobot {
     public void DeactivateShooterMotor()
     {
       shooter_motor.set(0);
+    }
+
+    public void IncreaseShooterSpeed()
+    {
+      shooter_motor.set(1);
+    }
+
+    public void DecreaseShooterSpeed()
+    {
+      shooter_motor.set(0.5);
     }
   
 
@@ -354,6 +366,15 @@ public class Robot extends TimedRobot {
         DeactivateIntake();
       }
 
+      if(HigherShootingSpeedButton.get())
+      {
+        IncreaseShooterSpeed();
+      }
+
+      if(LowerShootingSpeedButton.get())
+      {
+        DecreaseShooterSpeed();
+      }
 
       if(ConveyorForwardButton.get())
       {
