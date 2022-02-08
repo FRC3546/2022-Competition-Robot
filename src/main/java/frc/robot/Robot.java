@@ -83,6 +83,10 @@ public class Robot extends TimedRobot {
   private static final String HangarCargo = "Hanger Cargo";
   private final SendableChooser<String> m_cargochooser = new SendableChooser<>();
 
+  private static final String DepositFirst = "Deposit First";
+  private static final String FetchFirst = "Fetch Ball First";
+  private static SendableChooser<String> m_order = new SendableChooser<>();
+
   private VictorSP left_motor = new VictorSP(0);
   private VictorSP right_motor = new VictorSP(2);
 
@@ -245,38 +249,69 @@ public class Robot extends TimedRobot {
     timer.reset();
     timer.start();
 
-  }
+      switch (m_autoCargo){
+        case TerminalCargo:
+        {
+          int backwards = 3;
+          int forwards = 5;
+        }
+        
+        case HangarCargo:
+        {
+          int backwards = 3;
+          int forwards = 5;
+        }
+
+        case WallCargo:
+        {
+          int backwards = 3;
+          int forwards = 5;
+        }
+        break;
+      }
+
+    }
+  
+
+  
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
+
     switch (m_autoSelected) {
       case GetCargo:
       default:
-        if (m_autoCargo == TerminalCargo){
+
+      switch (m_autoCargo){
+        case TerminalCargo:
+        {
 
         }
         
-        if (m_autoCargo == HangarCargo){
+        case HangarCargo:
+        {
 
         }
 
-        if (m_autoCargo == WallCargo){
+        case WallCargo:
+        {
 
         }
+      }
         break;
 
       case LeaveTarmac:{
-        drive_train.tankDrive(0.5, 0.5);
+
         }
         break;
       
-        case Nothing:{      
+      case Nothing:{      
             // Does nothing LOL
         }
         
         break;
-    }
+      }
   }
 
   /** This function is called once when teleop is enabled. */
@@ -290,6 +325,8 @@ public class Robot extends TimedRobot {
     climber_extension.set(codriver_controller.getY());
 
     updateInversionValue();
+
+
 
     if (isInverted == true)
     {
