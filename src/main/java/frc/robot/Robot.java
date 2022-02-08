@@ -42,26 +42,26 @@ public class Robot extends TimedRobot {
   private Joystick right_driver_controller = new Joystick(1);
   private Joystick codriver_controller = new Joystick(2);
   
-  // Driver left controller buttons
+  // Driver right controller buttons
   private JoystickButton IntakeButton = new JoystickButton(right_driver_controller, 1);
-  private JoystickButton DriveTrainReturnButton = new JoystickButton(right_driver_controller, 8);
+  private JoystickButton DriveTrainReturnButton = new JoystickButton(right_driver_controller, 6);
   private JoystickButton DriveTrainInvertButton = new JoystickButton(right_driver_controller, 7);
   
-  // Driver right controller buttons
+  // Driver left controller buttons
   private JoystickButton GyroResetButton = new JoystickButton(left_driver_controller, 10);
 
   // Co-driver buttons
-  private JoystickButton ShooterOnButton = new JoystickButton(codriver_controller, 6);
-  private JoystickButton ShooterOffButton = new JoystickButton(codriver_controller, 4);
+  private JoystickButton HigherShootingSpeedButton = new JoystickButton(codriver_controller, 7);
+  private JoystickButton LowerShootingSpeedButton = new JoystickButton(codriver_controller, 9);
+  private JoystickButton ShooterOffButton = new JoystickButton(codriver_controller, 11);
   private JoystickButton ConveyorForwardButton = new JoystickButton(codriver_controller, 8);
   private JoystickButton ConveyorReverseButton = new JoystickButton(codriver_controller, 12);
   private JoystickButton ConveyorStopButton = new JoystickButton(codriver_controller, 10);
-  private JoystickButton ClimberTiltButton = new JoystickButton(codriver_controller, 11);
-  private JoystickButton ClimberReturnButton = new JoystickButton(codriver_controller, 9);
-  private JoystickButton HigherShootingSpeedButton = new JoystickButton(codriver_controller, 5);
-  private JoystickButton LowerShootingSpeedButton = new JoystickButton(codriver_controller, 3);
+  private JoystickButton ClimberTiltButton = new JoystickButton(codriver_controller, 5);
+  private JoystickButton ClimberReturnButton = new JoystickButton(codriver_controller, 3);
 
-  
+
+
   private DoubleSolenoid Intake_Solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 0, 1);
   private DoubleSolenoid CargoRelease_Solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2, 3);
   private DoubleSolenoid Climber_Solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 4, 5);
@@ -125,17 +125,7 @@ public class Robot extends TimedRobot {
     } 
   
 
-    // Methods for the Shooter
-    public void ActivateShooterMotor()
-    {
-     shooter_motor.set(1);
-    }
-  
-    public void DeactivateShooterMotor()
-    {
-      shooter_motor.set(0);
-    }
-
+    // Methods for the Shooter  
     public void IncreaseShooterSpeed()
     {
       shooter_motor.set(1);
@@ -145,7 +135,12 @@ public class Robot extends TimedRobot {
     {
       shooter_motor.set(0.5);
     }
-  
+
+    public void DeactivateShooterMotor()
+    {
+      shooter_motor.set(0);
+    }
+
 
     // Methods for the Climber
     public void TiltClimber()
@@ -209,6 +204,7 @@ public class Robot extends TimedRobot {
 
 
     drive_train = new DifferentialDrive(left_motor, right_motor);
+
 
 
 
@@ -291,6 +287,9 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
 
+    climber_extension.set(codriver_controller.getY());
+
+    updateInversionValue();
 
     if (isInverted == true)
     {
@@ -309,24 +308,10 @@ public class Robot extends TimedRobot {
         DeactivateIntake();
       }
 
-
-
       
       if(GyroResetButton.get())
       {
         gyro.zeroYaw();
-      }
-
-
-      if(ShooterOnButton.get())
-      {
-        ActivateShooterMotor();
-      }
-
-
-      if(ShooterOffButton.get())
-      {
-        DeactivateIntake();
       }
 
       if(HigherShootingSpeedButton.get())
@@ -338,6 +323,12 @@ public class Robot extends TimedRobot {
       {
         DecreaseShooterSpeed();
       }
+
+      if(ShooterOffButton.get())
+      {
+        DeactivateIntake();
+      }
+
 
       if(ConveyorForwardButton.get())
       {
