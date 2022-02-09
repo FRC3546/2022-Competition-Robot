@@ -38,6 +38,7 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
  */
 
 public class Robot extends TimedRobot {
+  //creates drive train object of differential drive class
   private DifferentialDrive drive_train;
   
   // These are the definitions of the actual joysticks
@@ -66,49 +67,59 @@ public class Robot extends TimedRobot {
   private JoystickButton climberActivationButton = new JoystickButton(codriver_controller, 6);
   private JoystickButton climberDeactivationButton = new JoystickButton(codriver_controller, 4);
 
-  
+  //Creates double solenoids for future reference
   private DoubleSolenoid Intake_Solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 0, 1);
   private DoubleSolenoid CargoRelease_Solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2, 3);
   private DoubleSolenoid Climber_Solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 4, 5);
 
+  //creates game timer
   private final Timer timer = new Timer();
 
+
+  //values for toggle(with seperate buttons) buttons
   private boolean isDriveTrainInverted = false;
   private boolean isClimberActivated = false;
 
+
+  //values for which auto routine we are using used when we pull which selector we have choosen
   private String m_autoSelected;
   private String m_autoCargo;
   private String m_autoOrder;
 
 
-
+  //chooser for primary routine(defaults as doing nothing)
   private static final String GetCargo = "Get the Cargo";
   private static final String LeaveTarmac = "Leave Tarmac";
   private static final String Nothing = "Do Nothing";
   private final SendableChooser<String> m_routines = new SendableChooser<>();
   
+  //chooser get cargo(determines which cargo we are going for from set positions)
   private static final String WallCargo = "Wall Cargo";
   private static final String TerminalCargo = "Terminal Cargo";
   private static final String HangarCargo = "Hanger Cargo";
   private final SendableChooser<String> m_cargochooser = new SendableChooser<>();
 
+  //chooser for order(if we get cargo)
   private static final String DepositFirst = "Deposit First";
   private static final String FetchFirst = "Fetch Ball First";
   private final SendableChooser<String> m_order = new SendableChooser<>();
 
+  //creates drive train victorSP motor controllers
   private VictorSP left_motor = new VictorSP(0);
   private VictorSP right_motor = new VictorSP(2);
 
+  //creates other motor controllers
   private VictorSP intake_motor = new VictorSP(4);
   private VictorSP conveyor_motor = new VictorSP(6);
   private Spark climber_extension = new Spark(7);
   private CANSparkMax shooter_motor = new CANSparkMax(28, MotorType.kBrushless);
 
+  //creates gyro object for navx board
   AHRS gyro = new AHRS(SerialPort.Port.kUSB);
 
   final double kP = 1;
 
-
+  //method for finding our toggle button values
     public void updateButtonValues()
     {
       if(DriveTrainInvertButton.get()) {
@@ -212,34 +223,40 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
 
+    //inverts both sides of the drivetrain(forward on controllers is negative y values)
     left_motor.setInverted(true);
     right_motor.setInverted(true);
 
+    //creates chooser options and displays for primary routines
     m_routines.addOption("Get the Cargo", GetCargo);
     m_routines.addOption("Leave Tarmac", LeaveTarmac);
     m_routines.setDefaultOption("Do nothing", Nothing);
     SmartDashboard.putData("Robot Routines", m_routines);
 
+    //creates chooser options and displays for cargo options
     m_cargochooser.addOption("Wall Cargo", WallCargo);
     m_cargochooser.addOption("Terminal Cargo", TerminalCargo);
     m_cargochooser.addOption("Hangar Cargo", HangarCargo);
     SmartDashboard.putData("Cargo Options", m_cargochooser);
 
+    //creates chooser options and displays for order
     m_order.addOption("Deposit First", DepositFirst);
     m_order.addOption("Fetch First", FetchFirst);
     SmartDashboard.putData("Order", m_order);
 
+    //puts gyro data on dashboard
     SmartDashboard.putData("Gyro", gyro);
-    Shuffleboard.getTab("Example tab").add(gyro);
 
 
+    //creates drive train object of differential drive class
     drive_train = new DifferentialDrive(left_motor, right_motor);
 
 
-
+    //makes sure that cargo stopper and climber are in starting position
     ReturnClimber();
     StopCargo();
 
+    //starts camera
     CameraServer.startAutomaticCapture();
 
   }
@@ -266,6 +283,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
+    //gets selections from smart dashboard
     m_autoSelected = m_routines.getSelected();
     m_autoCargo = m_cargochooser.getSelected();
     m_autoOrder = m_order.getSelected();
@@ -273,9 +291,11 @@ public class Robot extends TimedRobot {
     // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     System.out.println("Auto selected: " + m_autoSelected);
 
+    //resets then starts timer as robot is enabled
     timer.reset();
     timer.start();
 
+    //sets variable values for autonomous
       switch (m_autoCargo){
         case TerminalCargo:
         {
@@ -306,6 +326,7 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() {
 
+    //runs specific auto routines depending on selected options
     switch (m_autoSelected) {
       case GetCargo:
       
@@ -349,10 +370,10 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
 
-
+    //calls earlier method for updating toggle values
     updateButtonValues();
 
-
+    //drive train and inverts if inversion is true
     if (isDriveTrainInverted == true)
     {
       drive_train.tankDrive(right_driver_controller.getY() * -1, left_driver_controller.getY() * -1);
@@ -362,6 +383,7 @@ public class Robot extends TimedRobot {
       drive_train.tankDrive(left_driver_controller.getY(), right_driver_controller.getY());
     }
 
+    //checks if intake should be on then runs corresponding method
       if(IntakeButton.get())
       {
         ActivateIntake();
@@ -372,51 +394,43 @@ public class Robot extends TimedRobot {
 
 
 
-      
+    //checks if gyro button is being reset then resets gyro if it needs to be reset
       if(GyroResetButton.get())
       {
         gyro.zeroYaw();
       }
 
-
-      if(ShooterOnButton.get())
-      {
-        ActivateShooterMotor();
-      }
-
-
-      if(ShooterOffButton.get())
+      //checks if shooter speed buttons are pressed or off button is pressed then calls corresponding method
+      if (ShooterOffButton.get())
       {
         DeactivateShooterMotor();
       }
-
-      if(HigherShootingSpeedButton.get())
+      else if(HigherShootingSpeedButton.get())
       {
         highShooterSpeed();
       }
-
-      if(LowerShootingSpeedButton.get())
+      else if(LowerShootingSpeedButton.get())
       {
         lowShooterSpeed();
       }
 
-      if(ConveyorForwardButton.get())
-      {
-        ActivateConveyor();
-      }
-
-
-      if(ConveyorReverseButton.get())
-      {
-        ReverseConveyor();
-      }
-
+      //checks if conveyor should be running in a direction or be shut off then runs corresponding method
       if(ConveyorStopButton.get())
       {
         DeactivateConveyor();
       }
+      else if(ConveyorForwardButton.get())
+      {
+        ActivateConveyor();
+      }
+      else if(ConveyorReverseButton.get())
+      {
+        ReverseConveyor();
+      }
 
 
+
+      //checks if climber should be tilted or returned then runs corresponding method
       if(ClimberTiltButton.get()) {
         TiltClimber();
       }
@@ -425,7 +439,7 @@ public class Robot extends TimedRobot {
       }
 
 
-      
+      //checks if climber is activated then takes y value as speed motor should be run
       if (isClimberActivated == true)
       {
       climber_extension.set(codriver_controller.getY());
