@@ -342,6 +342,7 @@ public class Robot extends TimedRobot {
 
     updateButtonValues();
 
+
     if (isDriveTrainInverted == true)
     {
       drive_train.tankDrive(right_driver_controller.getY() * -1, left_driver_controller.getY() * -1);
@@ -376,7 +377,7 @@ public class Robot extends TimedRobot {
 
       if(ShooterOffButton.get())
       {
-        DeactivateIntake();
+        DeactivateShooterMotor();
       }
 
       if(HigherShootingSpeedButton.get())
@@ -406,16 +407,17 @@ public class Robot extends TimedRobot {
       }
 
 
-      if(ClimberTiltButton.get())
-      {
+      if(ClimberTiltButton.get()) {
         TiltClimber();
       }
-
-
-      if(ClimberReturnButton.get())
-      {
+      else if(ClimberReturnButton.get()) {
         ReturnClimber();
       }
+
+
+      
+    
+      climber_extension.set(codriver_controller.getY());
 
 
 
