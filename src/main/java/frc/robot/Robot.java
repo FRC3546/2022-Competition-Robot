@@ -60,6 +60,8 @@ public class Robot extends TimedRobot {
   private JoystickButton ClimberReturnButton = new JoystickButton(codriver_controller, 9);
   private JoystickButton HigherShootingSpeedButton = new JoystickButton(codriver_controller, 5);
   private JoystickButton LowerShootingSpeedButton = new JoystickButton(codriver_controller, 3);
+  private JoystickButton climberActivationButton = new JoystickButton(codriver_controller, 6);
+  private JoystickButton climberDeactivationButton = new JoystickButton(codriver_controller, 4);
 
   
   private DoubleSolenoid Intake_Solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 0, 1);
@@ -69,6 +71,7 @@ public class Robot extends TimedRobot {
   private final Timer timer = new Timer();
 
   private boolean isDriveTrainInverted = false;
+  private boolean isClimberActivated = false;
 
   private String m_autoSelected;
   private String m_autoCargo;
@@ -100,16 +103,24 @@ public class Robot extends TimedRobot {
   final double kP = 1;
 
 
-    public void updateDriveTrainInversionValue()
+    public void updateButtonValues()
     {
-      if(DriveTrainInvertButton.get())
-        {
+      if(DriveTrainInvertButton.get()) {
         isDriveTrainInverted = true;
-        }
-      if(DriveTrainReturnButton.get())
+      }
+      else if(DriveTrainReturnButton.get())
       {
         isDriveTrainInverted = false;
       }
+      if(climberActivationButton.get()) {
+        isClimberActivated = true;
+      }
+      else if(climberDeactivationButton.get())
+      {
+        isClimberActivated = false;
+      }
+
+      
     }
 
      // Methods for the Conveyor
@@ -329,7 +340,7 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
 
 
-    updateDriveTrainInversionValue();
+    updateButtonValues();
 
     if (isDriveTrainInverted == true)
     {
