@@ -416,8 +416,10 @@ public class Robot extends TimedRobot {
 
 
       
-    
+      if (isClimberActivated == true)
+      {
       climber_extension.set(codriver_controller.getY());
+      }
 
 
 
