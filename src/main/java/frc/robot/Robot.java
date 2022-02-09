@@ -55,7 +55,6 @@ public class Robot extends TimedRobot {
   private JoystickButton GyroResetButton = new JoystickButton(left_driver_controller, 10);
 
   // Co-driver buttons
-  private JoystickButton ShooterOnButton = new JoystickButton(codriver_controller, 6);
   private JoystickButton ShooterOffButton = new JoystickButton(codriver_controller, 4);
   private JoystickButton ConveyorForwardButton = new JoystickButton(codriver_controller, 8);
   private JoystickButton ConveyorReverseButton = new JoystickButton(codriver_controller, 12);
