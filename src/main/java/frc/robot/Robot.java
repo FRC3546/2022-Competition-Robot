@@ -2,6 +2,9 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
+
+
+
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -75,6 +78,9 @@ public class Robot extends TimedRobot {
 
   private String m_autoSelected;
   private String m_autoCargo;
+  private String m_autoOrder;
+
+
 
   private static final String GetCargo = "Get the Cargo";
   private static final String LeaveTarmac = "Leave Tarmac";
@@ -88,7 +94,7 @@ public class Robot extends TimedRobot {
 
   private static final String DepositFirst = "Deposit First";
   private static final String FetchFirst = "Fetch Ball First";
-  private static SendableChooser<String> m_order = new SendableChooser<>();
+  private final SendableChooser<String> m_order = new SendableChooser<>();
 
   private VictorSP left_motor = new VictorSP(0);
   private VictorSP right_motor = new VictorSP(2);
@@ -209,9 +215,9 @@ public class Robot extends TimedRobot {
     left_motor.setInverted(true);
     right_motor.setInverted(true);
 
-    m_routines.setDefaultOption("Get the Cargo", GetCargo);
+    m_routines.addOption("Get the Cargo", GetCargo);
     m_routines.addOption("Leave Tarmac", LeaveTarmac);
-    m_routines.addOption("Do nothing", Nothing);
+    m_routines.setDefaultOption("Do nothing", Nothing);
     SmartDashboard.putData("Robot Routines", m_routines);
 
     m_cargochooser.addOption("Wall Cargo", WallCargo);
@@ -219,7 +225,9 @@ public class Robot extends TimedRobot {
     m_cargochooser.addOption("Hangar Cargo", HangarCargo);
     SmartDashboard.putData("Cargo Options", m_cargochooser);
 
-    // m_order.addOption("", object);
+    m_order.addOption("Deposit First", DepositFirst);
+    m_order.addOption("Fetch First", FetchFirst);
+    SmartDashboard.putData("Order", m_order);
 
     SmartDashboard.putData("Gyro", gyro);
     Shuffleboard.getTab("Example tab").add(gyro);
@@ -260,6 +268,8 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {
     m_autoSelected = m_routines.getSelected();
     m_autoCargo = m_cargochooser.getSelected();
+    m_autoOrder = m_order.getSelected();
+    
     // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     System.out.println("Auto selected: " + m_autoSelected);
 
@@ -298,7 +308,7 @@ public class Robot extends TimedRobot {
 
     switch (m_autoSelected) {
       case GetCargo:
-      default:
+      
 
       switch (m_autoCargo){
         case TerminalCargo:
@@ -323,7 +333,7 @@ public class Robot extends TimedRobot {
         }
         break;
       
-      case Nothing:{      
+      case Nothing:default:{      
             // Does nothing LOL
         }
         
