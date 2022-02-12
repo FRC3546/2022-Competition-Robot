@@ -51,7 +51,7 @@ public class Robot extends TimedRobot {
   
   // Driver left controller buttons
   private JoystickButton IntakeButton = new JoystickButton(right_driver_controller, 1);
-  private JoystickButton DriveTrainReturnButton = new JoystickButton(right_driver_controller, 8);
+  private JoystickButton DriveTrainReturnButton = new JoystickButton(right_driver_controller, 6);
   private JoystickButton DriveTrainInvertButton = new JoystickButton(right_driver_controller, 7);
   
   // Driver right controller buttons
@@ -232,6 +232,19 @@ public class Robot extends TimedRobot {
       intake_motor.set(0);
     }
 
+    public void autoMove(double a, double b)
+    {
+      double autoForwardStart = timer.get();
+      while (timer.get() < autoForwardStart + a)
+      {
+        drive_train.tankDrive(b, b);
+      }
+    }
+
+    public void autoRotate(int degree)
+    {
+
+    }
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -312,43 +325,12 @@ public class Robot extends TimedRobot {
     timer.reset();
     timer.start();
 
-    //sets variable values for autonomous
-      switch (m_autoCargo){
-        case TerminalCargo:
-        {
-          int backwards = 3;
-          int forwards = 5;
-        }
-        
-        case HangarCargo:
-        {
-          int backwards = 3;
-          int forwards = 5;
-        }
 
   //sets variable values for autonomous
-    switch (m_autoCargo){
-      case TerminalCargo:
-      {
-        int backwards = 3;
-        int forwards = 5;
-      }
-      
-      case HangarCargo:
-      {
-        int backwards = 3;
-        int forwards = 5;
-      }
 
-      case WallCargo:
-      {
-        int backwards = 3;
-        int forwards = 5;
-      }
-      break;
     }
-  }
-}
+  
+
   
 
   
@@ -365,7 +347,7 @@ public class Robot extends TimedRobot {
       switch (m_autoCargo){
         case TerminalCargo:
         {
-          
+
         }
         
         case HangarCargo:
