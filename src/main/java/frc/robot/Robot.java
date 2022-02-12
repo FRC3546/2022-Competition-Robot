@@ -267,9 +267,9 @@ public class Robot extends TimedRobot {
 
     public void autoRotate(int degree, double speed)
     {
-    gyro.reset();
+    gyro.zeroYaw();
 
-     while (Math.abs(gyro.getRawGyroY() - degree) > 2)
+     while (Math.abs(gyro.getYaw() - degree) > 2)
       {
      if (degree < 0)
      {
