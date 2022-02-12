@@ -21,6 +21,9 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.cameraserver.CameraServer;
+
+import javax.lang.model.util.ElementScanner6;
+
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SerialPort;
 
@@ -77,6 +80,8 @@ public class Robot extends TimedRobot {
   //creates game timer
   private final Timer timer = new Timer();
 
+  private double intakeTimer;
+
 
   //values for toggle(with seperate buttons) buttons
   private boolean isDriveTrainInverted = false;
@@ -91,6 +96,7 @@ public class Robot extends TimedRobot {
   private String m_autoOrder;
 
   //chooser for primary routine(defaults as doing nothing)
+  private static final String depositCargoOnly = "Deposit Cargo only";
   private static final String GetCargo = "Get the Cargo";
   private static final String LeaveTarmac = "Leave Tarmac";
   private static final String Nothing = "Do Nothing";
@@ -206,16 +212,35 @@ public class Robot extends TimedRobot {
     {
       intake_motor.set(1);
       Intake_Solenoid.set(Value.kForward);
+      intakeTimer = timer.get();
       Intake = true;
     }
 
-    public void DeactivateIntake()
+    public void RetractIntake()
     {
+
       Intake_Solenoid.set(Value.kReverse);
+    }
+
+    public void deactivateIntakeMotor()
+    {
       intake_motor.set(0);
       Intake = false;
     }
 
+    public void autoMove(double a, double b)
+    {
+      double autoForwardStart = timer.get();
+      while (timer.get() < autoForwardStart + a)
+      {
+        drive_train.tankDrive(b, b);
+      }
+    }
+
+    public void autoRotate(int degree)
+    {
+
+    }
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -229,6 +254,7 @@ public class Robot extends TimedRobot {
     right_motor.setInverted(true);
 
     //creates chooser options and displays for primary routines
+    m_routines.addOption("Deposit Cargo Only", depositCargoOnly);
     m_routines.addOption("Get the Cargo", GetCargo);
     m_routines.addOption("Leave Tarmac", LeaveTarmac);
     m_routines.setDefaultOption("Do nothing", Nothing);
@@ -243,7 +269,7 @@ public class Robot extends TimedRobot {
     //creates chooser options and displays for order
     m_order.addOption("Deposit First", DepositFirst);
     m_order.addOption("Fetch First", FetchFirst);
-    SmartDashboard.putData("Order", m_order);
+    SmartDashboard.putData("Order for Get Cargo", m_order);
 
     //puts gyro data on dashboard
     SmartDashboard.putData("Gyro", gyro);
@@ -296,43 +322,12 @@ public class Robot extends TimedRobot {
     timer.reset();
     timer.start();
 
-    //sets variable values for autonomous
-      switch (m_autoCargo){
-        case TerminalCargo:
-        {
-          int backwards = 3;
-          int forwards = 5;
-        }
-        
-        case HangarCargo:
-        {
-          int backwards = 3;
-          int forwards = 5;
-        }
 
   //sets variable values for autonomous
-    switch (m_autoCargo){
-      case TerminalCargo:
-      {
-        int backwards = 3;
-        int forwards = 5;
-      }
-      
-      case HangarCargo:
-      {
-        int backwards = 3;
-        int forwards = 5;
-      }
 
-      case WallCargo:
-      {
-        int backwards = 3;
-        int forwards = 5;
-      }
-      break;
     }
-  }
-}
+  
+
   
 
   
@@ -408,11 +403,16 @@ public class Robot extends TimedRobot {
     //checks if intake should be on then runs corresponding method
       if(IntakeButton.get())
       {
-        ActivateIntake();
+      ActivateIntake();
       }
-      else{
-        DeactivateIntake();
+      else if (timer.get() < intakeTimer + 3){
+      RetractIntake();
       }
+      else
+      {
+      deactivateIntakeMotor();
+      }
+      
 
 
 
