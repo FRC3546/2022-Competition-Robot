@@ -24,11 +24,12 @@ import edu.wpi.first.cameraserver.CameraServer;
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SerialPort;
 
-import edu.wpi.first.wpilibj.shuffleboard.*;
-
-
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -48,7 +49,7 @@ public class Robot extends TimedRobot {
   
   // Driver left controller buttons
   private JoystickButton IntakeButton = new JoystickButton(right_driver_controller, 1);
-  private JoystickButton DriveTrainReturnButton = new JoystickButton(right_driver_controller, 8);
+  private JoystickButton DriveTrainReturnButton = new JoystickButton(right_driver_controller, 6);
   private JoystickButton DriveTrainInvertButton = new JoystickButton(right_driver_controller, 7);
   
   // Driver right controller buttons
@@ -71,6 +72,8 @@ public class Robot extends TimedRobot {
   private DoubleSolenoid CargoRelease_Solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2, 3);
   private DoubleSolenoid Climber_Solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 4, 5);
 
+  private boolean Intake = false;
+
   //creates game timer
   private final Timer timer = new Timer();
 
@@ -80,11 +83,12 @@ public class Robot extends TimedRobot {
   private boolean isClimberActivated = false;
 
 
+  private final SendableChooser<String> Values = new SendableChooser<>();
+
   //values for which auto routine we are using used when we pull which selector we have choosen
   private String m_autoSelected;
   private String m_autoCargo;
   private String m_autoOrder;
-
 
   //chooser for primary routine(defaults as doing nothing)
   private static final String GetCargo = "Get the Cargo";
@@ -139,11 +143,6 @@ public class Robot extends TimedRobot {
       
     }
 
-  
-
-      
-    
-
     // Methods for the Conveyor
     public void ActivateConveyor()
     {
@@ -161,11 +160,6 @@ public class Robot extends TimedRobot {
     } 
 
 
-    // Methods for the Shooter
-    public void ActivateShooterMotor()
-    {
-    shooter_motor.set(1);
-    }
 
     public void DeactivateShooterMotor()
     {
@@ -212,12 +206,14 @@ public class Robot extends TimedRobot {
     {
       intake_motor.set(1);
       Intake_Solenoid.set(Value.kForward);
+      Intake = true;
     }
 
     public void DeactivateIntake()
     {
       Intake_Solenoid.set(Value.kReverse);
       intake_motor.set(0);
+      Intake = false;
     }
 
 
@@ -251,7 +247,7 @@ public class Robot extends TimedRobot {
 
     //puts gyro data on dashboard
     SmartDashboard.putData("Gyro", gyro);
-
+    
     //creates drive train object of differential drive class
     drive_train = new DifferentialDrive(left_motor, right_motor);
 
@@ -264,6 +260,7 @@ public class Robot extends TimedRobot {
     CameraServer.startAutomaticCapture();
 
   }
+  
 
   /**
    * This function is called every robot packet, no matter the mode. Use this for items like
@@ -382,14 +379,21 @@ public class Robot extends TimedRobot {
 
   /** This function is called once when teleop is enabled. */
   @Override
-  public void teleopInit() {}
+  public void teleopInit() {
+
+  }
 
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
 
+    SmartDashboard.putBoolean("Intake", Intake);
+    SmartDashboard.updateValues();
+
+    
     //calls earlier method for updating toggle values
     updateButtonValues();
+
 
     //drive train and inverts if inversion is true
     if (isDriveTrainInverted == true)
@@ -462,10 +466,6 @@ public class Robot extends TimedRobot {
       {
       climber_extension.set(codriver_controller.getY());
       }
-
-
-
-
 
 
   }
