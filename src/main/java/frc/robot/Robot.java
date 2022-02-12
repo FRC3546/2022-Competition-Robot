@@ -271,11 +271,11 @@ public class Robot extends TimedRobot {
 
      while (Math.abs(gyro.getYaw() - degree) > 2)
       {
-     if (degree < 0)
+     if (degree > 0)
      {
       drive_train.tankDrive((-1) * speed, speed);
      }
-     if (degree > 0 )
+     if (degree < 0 )
      {
       drive_train.tankDrive(speed, (-1) * speed);
      }
