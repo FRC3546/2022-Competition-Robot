@@ -94,7 +94,9 @@ public class Robot extends TimedRobot {
   private String m_autoCargo;
   private String m_autoOrder;
 
+
   //chooser for primary routine(defaults as doing nothing)
+  private static final String test = "test";
   private static final String depositCargoOnly = "Deposit Cargo only";
   private static final String GetCargo = "Get the Cargo";
   private static final String LeaveTarmac = "Leave Tarmac";
@@ -153,6 +155,11 @@ public class Robot extends TimedRobot {
       
     }
 
+  
+
+      
+    
+
     // Methods for the Conveyor
     public void ActivateConveyor()
     {
@@ -173,6 +180,11 @@ public class Robot extends TimedRobot {
     } 
 
 
+    // Methods for the Shooter
+    public void ActivateShooterMotor()
+    {
+    shooter_motor.set(1);
+    }
 
     public void DeactivateShooterMotor()
     {
@@ -229,6 +241,7 @@ public class Robot extends TimedRobot {
       Intake_Solenoid.set(Value.kForward);
       intakeTimer = timer.get();
       IntakeValue = true;
+      intakeTimer = Timer.getFPGATimestamp();
     }
 
     public void RetractIntake()
@@ -243,18 +256,31 @@ public class Robot extends TimedRobot {
       IntakeValue = false;
     }
 
-    public void autoMove(double a, double b)
+    public void autoMove(double time, double speed)
     {
       double autoForwardStart = timer.get();
-      while (timer.get() < autoForwardStart + a)
+      while (timer.get() < autoForwardStart + time)
       {
-        drive_train.tankDrive(b, b);
+        drive_train.tankDrive(speed, speed);
       }
     }
 
-    public void autoRotate(int degree)
+    public void autoRotate(int degree, double speed)
     {
+    gyro.reset();
 
+     while (Math.abs(gyro.getRawGyroY() - degree) > 2)
+      {
+     if (degree < 0)
+     {
+      drive_train.tankDrive(-1 * speed, speed);
+     }
+     if (degree > 0 )
+     {
+      drive_train.tankDrive(speed, -1 * speed);
+     }
+        
+      }
     }
 
   /**
@@ -264,11 +290,16 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
 
+    //resets then starts timer as robot is enabled
+    timer.reset();
+    timer.start();
+
     //inverts both sides of the drivetrain(forward on controllers is negative y values)
     left_motor.setInverted(true);
     right_motor.setInverted(true);
 
     //creates chooser options and displays for primary routines
+    m_routines.addOption("Test", test);
     m_routines.addOption("Deposit Cargo Only", depositCargoOnly);
     m_routines.addOption("Get the Cargo", GetCargo);
     m_routines.addOption("Leave Tarmac", LeaveTarmac);
@@ -299,7 +330,6 @@ public class Robot extends TimedRobot {
 
 
   }
-  
 
   /**
    * This function is called every robot packet, no matter the mode. Use this for items like
@@ -356,9 +386,7 @@ public class Robot extends TimedRobot {
     // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     System.out.println("Auto selected: " + m_autoSelected);
 
-    //resets then starts timer as robot is enabled
-    timer.reset();
-    timer.start();
+
 
 
   //sets variable values for autonomous
@@ -377,7 +405,7 @@ public class Robot extends TimedRobot {
     //runs specific auto routines depending on selected options
     switch (m_autoSelected) {
       case GetCargo:
-      
+      {
 
       switch (m_autoCargo){
         case TerminalCargo:
@@ -396,33 +424,45 @@ public class Robot extends TimedRobot {
         }
       }
         break;
+    }
 
       case LeaveTarmac:{
 
-        }
         break;
+        }
+
       
-      case Nothing:default:{      
+      case Nothing:{      
             // Does nothing LOL
         }
         
         break;
+
+      case test: {
+        if (timer.get() < 3)
+        {
+          autoMove(3, .5);
+          autoRotate(90, .5);
+        }
+
+
+
       }
+      }
+
   }
 
   /** This function is called once when teleop is enabled. */
   @Override
-  public void teleopInit() {
-
-  }
+  public void teleopInit() {}
 
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
     
+
     //calls earlier method for updating toggle values
     updateButtonValues();
-
 
     //drive train and inverts if inversion is true
     if (isDriveTrainInverted == true)
@@ -435,15 +475,13 @@ public class Robot extends TimedRobot {
     }
 
     //checks if intake should be on then runs corresponding method
-      if(IntakeButton.get())
-      {
+      if(IntakeButton.get()){
       ActivateIntake();
       }
-      else if (timer.get() < intakeTimer + 3){
+      else{
       RetractIntake();
       }
-      else
-      {
+      if (Timer.getFPGATimestamp() > intakeTimer + 3){
       deactivateIntakeMotor();
       }
       
@@ -500,6 +538,10 @@ public class Robot extends TimedRobot {
       {
       climber_extension.set(codriver_controller.getY());
       }
+
+
+
+
 
 
   }
