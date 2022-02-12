@@ -258,11 +258,12 @@ public class Robot extends TimedRobot {
 
     public void autoMove(double time, double speed)
     {
-      double autoForwardStart = timer.get();
-      while (timer.get() < autoForwardStart + time)
+      double autoForwardStart = Timer.getFPGATimestamp();
+      while (Timer.getFPGATimestamp() < (autoForwardStart + time))
       {
-        drive_train.tankDrive(speed, speed);
+        drive_train.tankDrive(-1 * speed,-1 * speed);
       }
+      drive_train.stopMotor();
     }
 
     public void autoRotate(int degree, double speed)
@@ -271,13 +272,13 @@ public class Robot extends TimedRobot {
 
      while (Math.abs(gyro.getYaw() - degree) > 2)
       {
-     if (degree < 0)
-     {
-      drive_train.tankDrive(-1 * speed, speed);
-     }
-     if (degree > 0 )
+     if (degree > 0)
      {
       drive_train.tankDrive(speed, -1 * speed);
+     }
+     if (degree < 0 )
+     {
+      drive_train.tankDrive(-1 * speed,speed);
      }
         
       }
@@ -326,7 +327,7 @@ public class Robot extends TimedRobot {
     StopCargo();
 
     //starts camera
-    CameraServer.startAutomaticCapture();
+    // CameraServer.startAutomaticCapture();
 
 
   }
@@ -384,12 +385,12 @@ public class Robot extends TimedRobot {
     m_autoOrder = m_order.getSelected();
     
     // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
-    System.out.println("Auto selected: " + m_autoSelected);
+    // System.out.println("Auto selected: " + m_autoSelected);
 
 
 
 
-  //sets variable values for autonomous
+
 
     }
   
@@ -439,15 +440,14 @@ public class Robot extends TimedRobot {
         break;
 
       case test: {
-        if (timer.get() < 3)
-        {
+
+          System.out.println("test Running");
+          
           autoMove(3, .5);
-          autoRotate(90, .5);
+          autoMove(12, 0);
+          
+          // autoRotate(90, .5);
         }
-
-
-
-      }
       }
 
   }
