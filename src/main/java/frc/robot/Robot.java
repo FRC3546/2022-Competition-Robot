@@ -22,8 +22,6 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.cameraserver.CameraServer;
 
-import javax.lang.model.util.ElementScanner6;
-
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SerialPort;
 
@@ -33,6 +31,8 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+
+
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -75,20 +75,19 @@ public class Robot extends TimedRobot {
   private DoubleSolenoid CargoRelease_Solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2, 3);
   private DoubleSolenoid Climber_Solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 4, 5);
 
-  private boolean Intake = false;
+  //values for toggle(with seperate buttons) buttons
+  private boolean isDriveTrainInverted = false;
+  private boolean isClimberActivated = false;
+  private boolean IntakeValue = false;
+  private boolean ConveyorValue = false;
+  private boolean ClimberTiltValue = false;
+  private String ShooterValue = "OFF";
 
   //creates game timer
   private final Timer timer = new Timer();
 
   private double intakeTimer;
 
-
-  //values for toggle(with seperate buttons) buttons
-  private boolean isDriveTrainInverted = false;
-  private boolean isClimberActivated = false;
-
-
-  private final SendableChooser<String> Values = new SendableChooser<>();
 
   //values for which auto routine we are using used when we pull which selector we have choosen
   private String m_autoSelected;
@@ -128,6 +127,11 @@ public class Robot extends TimedRobot {
 
   final double kP = 1;
 
+  NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
+  NetworkTableEntry tx = table.getEntry("tx");
+  NetworkTableEntry ty = table.getEntry("ty");
+  NetworkTableEntry ta = table.getEntry("ta");
+
   //method for finding our toggle button values
     public void updateButtonValues()
     {
@@ -153,16 +157,19 @@ public class Robot extends TimedRobot {
     public void ActivateConveyor()
     {
       conveyor_motor.set(1);
+      ConveyorValue = true;
     }
 
     public void DeactivateConveyor()
     {
       conveyor_motor.set(0);
+      ConveyorValue = false;
     }
 
     public void ReverseConveyor()
     {
       conveyor_motor.set(-0.5);
+      ConveyorValue = true;
     } 
 
 
@@ -170,28 +177,36 @@ public class Robot extends TimedRobot {
     public void DeactivateShooterMotor()
     {
       shooter_motor.set(0);
+      ShooterValue = "OFF";
+    }
+    
+    public void lowShooterSpeed()
+    {
+      shooter_motor.set(0.5);
+      ShooterValue = "LOW SPEED";
+
     }
 
     public void highShooterSpeed()
     {
       shooter_motor.set(1);
+      ShooterValue = "HIGH SPEED";
     }
 
-    public void lowShooterSpeed()
-    {
-      shooter_motor.set(0.5);
-    }
+
 
 
     // Methods for the Climber
     public void TiltClimber()
     {
       Climber_Solenoid.set(Value.kForward);
+      ClimberTiltValue = true;
     }
 
     public void ReturnClimber()
     {
       Climber_Solenoid.set(Value.kReverse);
+      ClimberTiltValue = false;
     }
 
 
@@ -213,7 +228,7 @@ public class Robot extends TimedRobot {
       intake_motor.set(1);
       Intake_Solenoid.set(Value.kForward);
       intakeTimer = timer.get();
-      Intake = true;
+      IntakeValue = true;
     }
 
     public void RetractIntake()
@@ -225,7 +240,7 @@ public class Robot extends TimedRobot {
     public void deactivateIntakeMotor()
     {
       intake_motor.set(0);
-      Intake = false;
+      IntakeValue = false;
     }
 
     public void autoMove(double a, double b)
@@ -270,9 +285,6 @@ public class Robot extends TimedRobot {
     m_order.addOption("Deposit First", DepositFirst);
     m_order.addOption("Fetch First", FetchFirst);
     SmartDashboard.putData("Order for Get Cargo", m_order);
-
-    //puts gyro data on dashboard
-    SmartDashboard.putData("Gyro", gyro);
     
     //creates drive train object of differential drive class
     drive_train = new DifferentialDrive(left_motor, right_motor);
@@ -285,6 +297,7 @@ public class Robot extends TimedRobot {
     //starts camera
     CameraServer.startAutomaticCapture();
 
+
   }
   
 
@@ -296,13 +309,38 @@ public class Robot extends TimedRobot {
    * SmartDashboard integrated updating.
    */
   @Override
-  public void robotPeriodic() {}
+  public void robotPeriodic() {
+
+    //read values periodically
+    double x = tx.getDouble(0.0);
+    double y = ty.getDouble(0.0);
+    double area = ta.getDouble(0.0);
+
+    //post to smart dashboard periodically
+    SmartDashboard.putNumber("LimelightX", x);
+    SmartDashboard.putNumber("LimelightY", y);
+    SmartDashboard.putNumber("LimelightArea", area);
+
+    SmartDashboard.putBoolean("Connection Status", gyro.isConnected());
+    SmartDashboard.putBoolean("Calibration Status", gyro.isCalibrating());
+    SmartDashboard.putNumber("Gyro Angle", gyro.getYaw());
+    SmartDashboard.putData("Gyro", gyro);
+
+    SmartDashboard.putBoolean("Climber Tilting", ClimberTiltValue);
+    SmartDashboard.putBoolean("Climber Safety", isClimberActivated);
+    SmartDashboard.putBoolean("Drive Train Inverted", isDriveTrainInverted);
+    SmartDashboard.putBoolean("Conveyor Value", ConveyorValue);
+    SmartDashboard.putBoolean("Intake Value", IntakeValue);
+    SmartDashboard.putString("Shooter Value", ShooterValue);
+    
+    SmartDashboard.updateValues();
+  }
 
   /**
    * This autonomous (along with the chooser code above) shows how to select between different
    * autonomous modes using the dashboard. The sendable chooser code works with the Java
    * SmartDashboard. If you prefer the LabVIEW Dashboard, remove all of the chooser code and
-   * uncomment the getString line to get the auto name from the text box below the Gyro
+   * uncomment the getString line to get the auto name from the text box below the gyro
    *
    * <p>You can add additional auto modes by adding additional comparisons to the switch structure
    * below with additional strings. If using the SendableChooser make sure to add them to the
@@ -381,10 +419,6 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-
-    SmartDashboard.putBoolean("Intake", Intake);
-    SmartDashboard.updateValues();
-
     
     //calls earlier method for updating toggle values
     updateButtonValues();
