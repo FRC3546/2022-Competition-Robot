@@ -1,3 +1,4 @@
+
 // Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
@@ -50,12 +51,12 @@ public class Robot extends TimedRobot {
   private Joystick right_driver_controller = new Joystick(1);
   private Joystick codriver_controller = new Joystick(2);
   
-  // Driver left controller buttons
+  // Driver right controller buttons
   private JoystickButton IntakeButton = new JoystickButton(right_driver_controller, 1);
   private JoystickButton DriveTrainReturnButton = new JoystickButton(right_driver_controller, 6);
   private JoystickButton DriveTrainInvertButton = new JoystickButton(right_driver_controller, 7);
   
-  // Driver right controller buttons
+  // Driver left controller buttons
   private JoystickButton GyroResetButton = new JoystickButton(left_driver_controller, 10);
 
   // Co-driver buttons
@@ -161,11 +162,6 @@ public class Robot extends TimedRobot {
       
     }
 
-  
-
-      
-    
-
     // Methods for the Conveyor
     public void ActivateConveyor()
     {
@@ -207,11 +203,9 @@ public class Robot extends TimedRobot {
 
     public void highShooterSpeed()
     {
-      shooter_motor.set(1);
+      shooter_motor.set(0.8);
       ShooterValue = "HIGH SPEED";
     }
-
-
 
 
     // Methods for the Climber
@@ -243,7 +237,7 @@ public class Robot extends TimedRobot {
     // Methods for Intake
     public void ActivateIntake()
     {
-      intake_motor.set(1);
+      intake_motor.set(0.5);
       Intake_Solenoid.set(Value.kForward);
       intakeTimer = timer.get();
       IntakeValue = true;
@@ -305,6 +299,9 @@ public class Robot extends TimedRobot {
     left_motor.setInverted(true);
     right_motor.setInverted(true);
 
+    conveyor_motor.setInverted(true);
+    shooter_motor.setInverted(true);
+
     //creates chooser options and displays for primary routines
     m_routines.addOption("Test", test);
     m_routines.addOption("Deposit Cargo Only", depositCargoOnly);
@@ -333,7 +330,7 @@ public class Robot extends TimedRobot {
     StopCargo();
 
     //starts camera
-    // CameraServer.startAutomaticCapture();
+    CameraServer.startAutomaticCapture();
 
 
   }
@@ -347,11 +344,6 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-
-    //post to smart dashboard periodically
-    SmartDashboard.putNumber("LimelightX", x);
-    SmartDashboard.putNumber("LimelightY", y);
-    SmartDashboard.putNumber("LimelightArea", area);
 
     SmartDashboard.putBoolean("Connection Status", gyro.isConnected());
     SmartDashboard.putBoolean("Calibration Status", gyro.isCalibrating());
@@ -387,18 +379,7 @@ public class Robot extends TimedRobot {
     
     // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     // System.out.println("Auto selected: " + m_autoSelected);
-
-
-
-
-
-
     }
-  
-
-  
-
-  
 
   /** This function is called periodically during autonomous. */
   @Override
