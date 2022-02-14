@@ -6,29 +6,39 @@
 
 package frc.robot;
 
+// implements the "IterativeRobotBase program framework"
 import edu.wpi.first.wpilibj.TimedRobot;
 
+// imports for motors
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import edu.wpi.first.wpilibj.motorcontrol.VictorSP;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+// imports for pnuematics
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 
+// import for the Nav X gyro
 import com.kauailabs.navx.frc.AHRS;
+
+// import that is used to connect the Nav X to usb
 import edu.wpi.first.wpilibj.SerialPort;
 
+// Smartdashboard imports
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+// joystick imports
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
+// camera server import
 import edu.wpi.first.cameraserver.CameraServer;
 
+// timer import
 import edu.wpi.first.wpilibj.Timer;
 
 
@@ -40,6 +50,7 @@ import edu.wpi.first.wpilibj.Timer;
  */
 
 public class Robot extends TimedRobot {
+  
   //creates drive train object of differential drive class
   private DifferentialDrive drive_train;
   
@@ -68,12 +79,12 @@ public class Robot extends TimedRobot {
   private JoystickButton climberActivationButton = new JoystickButton(codriver_controller, 6);
   private JoystickButton climberDeactivationButton = new JoystickButton(codriver_controller, 4);
 
-  //Creates double solenoids for future reference
+  // Creates double solenoids for future reference
   private DoubleSolenoid Intake_Solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 0, 1);
   private DoubleSolenoid CargoRelease_Solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2, 3);
   private DoubleSolenoid Climber_Solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 4, 5);
 
-  //values for toggle(with seperate buttons) buttons
+  // values for toggle(with seperate buttons) buttons
   private boolean isDriveTrainInverted = false;
   private boolean isClimberActivated = false;
   private boolean IntakeValue = false;
@@ -81,19 +92,18 @@ public class Robot extends TimedRobot {
   private boolean ClimberTiltValue = false;
   private String ShooterValue = "OFF";
 
-  //creates game timer
+  // creates game timer
   private final Timer timer = new Timer();
 
   private double intakeTimer;
 
 
-  //values for which auto routine we are using used when we pull which selector we have choosen
+  // values for which auto routine we are using used when we pull which selector we have choosen
   private String m_autoSelected;
   private String m_autoCargo;
   private String m_autoOrder;
 
-
-  //chooser for primary routine(defaults as doing nothing)
+  // chooser for primary routine(defaults as doing nothing)
   private static final String test = "test";
   private static final String depositCargoOnly = "Deposit Cargo only";
   private static final String GetCargo = "Get the Cargo";
@@ -101,34 +111,33 @@ public class Robot extends TimedRobot {
   private static final String Nothing = "Do Nothing";
   private final SendableChooser<String> m_routines = new SendableChooser<>();
   
-  //chooser get cargo(determines which cargo we are going for from set positions)
+  // chooser get cargo(determines which cargo we are going for from set positions)
   private static final String WallCargo = "Wall Cargo";
   private static final String TerminalCargo = "Terminal Cargo";
   private static final String HangarCargo = "Hanger Cargo";
   private final SendableChooser<String> m_cargochooser = new SendableChooser<>();
 
-  //chooser for order(if we get cargo)
+  // chooser for order(if we get cargo)
   private static final String DepositFirst = "Deposit First";
   private static final String FetchFirst = "Fetch Ball First";
   private final SendableChooser<String> m_order = new SendableChooser<>();
 
-  //creates drive train victorSP motor controllers
+  // creates drive train victorSP motor controllers
   private VictorSP left_motor = new VictorSP(0);
   private VictorSP right_motor = new VictorSP(2);
 
-  //creates other motor controllers
+  // creates other motor controllers
   private VictorSP intake_motor = new VictorSP(4);
   private VictorSP conveyor_motor = new VictorSP(6);
   private Spark climber_extension = new Spark(7);
   private CANSparkMax shooter_motor = new CANSparkMax(28, MotorType.kBrushless);
 
-  //creates gyro object for navx board
+  // creates gyro object for navx board
   AHRS gyro = new AHRS(SerialPort.Port.kUSB);
 
   final double kP = 1;
 
-  
-  //method for finding our toggle button values
+  // method for finding our toggle button values
     public void updateButtonValues()
     {
       if(DriveTrainInvertButton.get()) {
@@ -145,8 +154,6 @@ public class Robot extends TimedRobot {
       {
         isClimberActivated = false;
       }
-
-      
     }
 
     // Methods for the Conveyor
@@ -243,6 +250,7 @@ public class Robot extends TimedRobot {
       IntakeValue = false;
     }
 
+
     public void autoMove(double time, double speed)
     {
       double autoForwardStart = Timer.getFPGATimestamp();
@@ -278,18 +286,18 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
 
-    //resets then starts timer as robot is enabled
+    // resets then starts timer as robot is enabled
     timer.reset();
     timer.start();
 
-    //inverts both sides of the drivetrain(forward on controllers is negative y values)
+    // inverts both sides of the drivetrain(forward on controllers is negative y values)
     left_motor.setInverted(true);
     right_motor.setInverted(true);
 
     conveyor_motor.setInverted(true);
     shooter_motor.setInverted(true);
 
-    //creates chooser options and displays for primary routines
+    // creates chooser options and displays for primary routines
     m_routines.addOption("Test", test);
     m_routines.addOption("Deposit Cargo Only", depositCargoOnly);
     m_routines.addOption("Get the Cargo", GetCargo);
@@ -297,28 +305,26 @@ public class Robot extends TimedRobot {
     m_routines.setDefaultOption("Do nothing", Nothing);
     SmartDashboard.putData("Robot Routines", m_routines);
 
-    //creates chooser options and displays for cargo options
+    // creates chooser options and displays for cargo options
     m_cargochooser.addOption("Wall Cargo", WallCargo);
     m_cargochooser.addOption("Terminal Cargo", TerminalCargo);
     m_cargochooser.addOption("Hangar Cargo", HangarCargo);
     SmartDashboard.putData("Cargo Options", m_cargochooser);
 
-    //creates chooser options and displays for order
+    // creates chooser options and displays for order
     m_order.addOption("Deposit First", DepositFirst);
     m_order.addOption("Fetch First", FetchFirst);
     SmartDashboard.putData("Order for Get Cargo", m_order);
     
-    //creates drive train object of differential drive class
+    // creates drive train object of differential drive class
     drive_train = new DifferentialDrive(left_motor, right_motor);
-
 
     //makes sure that cargo stopper and climber are in starting position
     ReturnClimber();
     StopCargo();
 
-    //starts camera
+    // starts camera
     CameraServer.startAutomaticCapture();
-
 
   }
 
@@ -372,7 +378,7 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() {
 
-    //runs specific auto routines depending on selected options
+    // runs specific auto routines depending on selected options
     switch (m_autoSelected) {
       case GetCargo:
       {
@@ -418,7 +424,6 @@ public class Robot extends TimedRobot {
           // autoRotate(90, .5);
         }
       }
-
   }
 
   /** This function is called once when teleop is enabled. */
@@ -430,10 +435,10 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     
 
-    //calls earlier method for updating toggle values
+    // calls earlier method for updating toggle values
     updateButtonValues();
 
-    //drive train and inverts if inversion is true
+    // drive train and inverts if inversion is true
     if (isDriveTrainInverted == true)
     {
       drive_train.tankDrive(right_driver_controller.getY() * -1, left_driver_controller.getY() * -1);
@@ -443,7 +448,7 @@ public class Robot extends TimedRobot {
       drive_train.tankDrive(left_driver_controller.getY(), right_driver_controller.getY());
     }
 
-    //checks if intake should be on then runs corresponding method
+    // checks if intake should be on then runs corresponding method
       if(IntakeButton.get()){
       ActivateIntake();
       }
@@ -454,16 +459,14 @@ public class Robot extends TimedRobot {
       deactivateIntakeMotor();
       }
       
-
-
-
-    //checks if gyro button is being reset then resets gyro if it needs to be reset
+      // checks if gyro button is being reset then resets gyro if it needs to be reset
       if(GyroResetButton.get())
       {
         gyro.zeroYaw();
       }
 
-      //checks if shooter speed buttons are pressed or off button is pressed then calls corresponding method
+
+      // checks if shooter speed buttons are pressed or off button is pressed then calls corresponding method
       if (ShooterOffButton.get())
       {
         DeactivateShooterMotor();
@@ -477,7 +480,8 @@ public class Robot extends TimedRobot {
         lowShooterSpeed();
       }
 
-      //checks if conveyor should be running in a direction or be shut off then runs corresponding method
+
+      // checks if conveyor should be running in a direction or be shut off then runs corresponding method
       if(ConveyorStopButton.get())
       {
         DeactivateConveyor();
@@ -492,7 +496,7 @@ public class Robot extends TimedRobot {
       }
 
 
-      //checks if climber should be tilted or returned then runs corresponding method
+      // checks if climber should be tilted or returned then runs corresponding method
       if(ClimberTiltButton.get()) {
         TiltClimber();
       }
@@ -501,7 +505,7 @@ public class Robot extends TimedRobot {
       }
 
 
-      //checks if climber is activated then takes y value as speed motor should be run
+      // checks if climber is activated then takes y value as speed motor should be run
       if (isClimberActivated == true)
       {
       climber_extension.set(codriver_controller.getY());
