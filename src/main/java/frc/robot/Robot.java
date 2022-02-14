@@ -4,35 +4,32 @@
 // the WPILib BSD license file in the root directory of this project.
 
 
-
-
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import edu.wpi.first.wpilibj.motorcontrol.VictorSP;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.DoubleSolenoid;
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
-import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
 
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SerialPort;
 
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+
+import edu.wpi.first.cameraserver.CameraServer;
+
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
-
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
-
 
 
 /**
@@ -61,11 +58,11 @@ public class Robot extends TimedRobot {
 
   // Co-driver buttons
   private JoystickButton HigherShootingSpeedButton = new JoystickButton(codriver_controller, 7);
-  private JoystickButton LowerShootingSpeedButton = new JoystickButton(codriver_controller, 9);
-  private JoystickButton ShooterOffButton = new JoystickButton(codriver_controller, 11);
+  private JoystickButton ShooterOffButton = new JoystickButton(codriver_controller, 9);
+  private JoystickButton LowerShootingSpeedButton = new JoystickButton(codriver_controller, 11);
   private JoystickButton ConveyorForwardButton = new JoystickButton(codriver_controller, 8);
-  private JoystickButton ConveyorReverseButton = new JoystickButton(codriver_controller, 12);
   private JoystickButton ConveyorStopButton = new JoystickButton(codriver_controller, 10);
+  private JoystickButton ConveyorReverseButton = new JoystickButton(codriver_controller, 12);
   private JoystickButton ClimberTiltButton = new JoystickButton(codriver_controller, 5);
   private JoystickButton ClimberReturnButton = new JoystickButton(codriver_controller, 3);
   private JoystickButton climberActivationButton = new JoystickButton(codriver_controller, 6);
@@ -130,16 +127,6 @@ public class Robot extends TimedRobot {
 
   final double kP = 1;
 
-  NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
-  NetworkTableEntry tx = table.getEntry("tx");
-  NetworkTableEntry ty = table.getEntry("ty");
-  NetworkTableEntry ta = table.getEntry("ta");
-
-
-  //read values periodically
-  double x = tx.getDouble(0.0);
-  double y = ty.getDouble(0.0);
-  double area = ta.getDouble(0.0);
   
   //method for finding our toggle button values
     public void updateButtonValues()
@@ -505,7 +492,6 @@ public class Robot extends TimedRobot {
       }
 
 
-
       //checks if climber should be tilted or returned then runs corresponding method
       if(ClimberTiltButton.get()) {
         TiltClimber();
@@ -520,11 +506,6 @@ public class Robot extends TimedRobot {
       {
       climber_extension.set(codriver_controller.getY());
       }
-
-
-
-
-
 
   }
 
