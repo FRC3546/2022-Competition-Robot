@@ -105,7 +105,7 @@ public class Robot extends TimedRobot {
 
   // chooser for primary routine(defaults as doing nothing)
   private static final String test = "test";
-  private static final String depositCargoOnly = "Deposit Cargo only";
+  private static final String depositCargoleave = "Deposit Cargo then Leave";
   private static final String GetCargo = "Get the Cargo";
   private static final String LeaveTarmac = "Leave Tarmac";
   private static final String Nothing = "Do Nothing";
@@ -254,26 +254,26 @@ public class Robot extends TimedRobot {
     public void autoMove(double time, double speed)
     {
       double autoForwardStart = Timer.getFPGATimestamp();
-      while (Timer.getFPGATimestamp() < (autoForwardStart + time))
+      while (Timer.getFPGATimestamp() < (autoForwardStart + time) && isAutonomous())
       {
         drive_train.tankDrive(-1 * speed,-1 * speed);
       }
       drive_train.stopMotor();
     }
 
-    public void autoRotate(int degree, double speed)
+    public void autoRotate(int degree)
     {
     gyro.zeroYaw();
 
-     while (Math.abs(gyro.getYaw() - degree) > 2)
+     while (Math.abs(gyro.getYaw() - degree) > 2 && isAutonomous())
       {
      if (degree > 0)
      {
-      drive_train.tankDrive(speed, -1 * speed);
+      drive_train.tankDrive(1, -1);
      }
      if (degree < 0 )
      {
-      drive_train.tankDrive(-1 * speed,speed);
+      drive_train.tankDrive(-1, 1);
      }
         
       }
@@ -299,7 +299,7 @@ public class Robot extends TimedRobot {
 
     // creates chooser options and displays for primary routines
     m_routines.addOption("Test", test);
-    m_routines.addOption("Deposit Cargo Only", depositCargoOnly);
+    m_routines.addOption("Deposit Cargo and Leave", depositCargoleave);
     m_routines.addOption("Get the Cargo", GetCargo);
     m_routines.addOption("Leave Tarmac", LeaveTarmac);
     m_routines.setDefaultOption("Do nothing", Nothing);
@@ -363,6 +363,12 @@ public class Robot extends TimedRobot {
    * below with additional strings. If using the SendableChooser make sure to add them to the
    * chooser code above as well.
    */
+
+   //autonomous vairables
+  int autoRotateAmount;
+
+
+
   @Override
   public void autonomousInit() {
     //gets selections from smart dashboard
@@ -370,8 +376,25 @@ public class Robot extends TimedRobot {
     m_autoCargo = m_cargochooser.getSelected();
     m_autoOrder = m_order.getSelected();
     
+    timer.reset();
+    timer.start();
     // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     // System.out.println("Auto selected: " + m_autoSelected);
+
+
+    switch(m_autoCargo){
+      case(WallCargo):{
+        autoRotateAmount = 90;
+      }
+      case(TerminalCargo):{
+        autoRotateAmount = 90;
+      }
+      case(HangarCargo):{
+        autoRotateAmount = 90;
+      }
+    }
+
+
     }
 
   /** This function is called periodically during autonomous. */
@@ -382,47 +405,54 @@ public class Robot extends TimedRobot {
     switch (m_autoSelected) {
       case GetCargo:
       {
+        //Routine For if we choose to get cargo
+        switch(m_autoOrder){
+          //If we choose to fetch the ball first
+          case(FetchFirst):{
+            ActivateIntake();
+            ActivateConveyor();
+            autoMove(3, -1);
+            deactivateIntakeMotor();
+            autoMove(3.5, 1);
+            autoRotate(autoRotateAmount);
+            lowShooterSpeed();
+            autoMove(2,1);
+            ReleaseCargo();
+            while(isAutonomous());
+          } break;
 
-      switch (m_autoCargo){
-        case TerminalCargo:
-        {
+          case(DepositFirst):{
 
-        }
-        
-        case HangarCargo:
-        {
+            autoMove(2,1);
 
-        }
-
-        case WallCargo:
-        {
-
+          } break;
         }
       }
-        break;
-    }
 
       case LeaveTarmac:{
-
-        break;
+        autoMove(2, .5);
+        while(isAutonomous());
         }
-
+      break;
       
       case Nothing:{      
-            // Does nothing LOL
+        while(isAutonomous());
         }
-        
-        break;
+      break;
+
+      case depositCargoleave:{
+        while (timer.get() < 2){
+          lowShooterSpeed();
+        } 
+        DeactivateShooterMotor();
+        while(isAutonomous());
+        }
+      break;
 
       case test: {
-
-          System.out.println("test Running");
-          
-          autoMove(3, .5);
-          autoMove(12, 0);
-          
-          // autoRotate(90, .5);
+        //used for testing functions during autonomous periodic
         }
+      break;
       }
   }
 
