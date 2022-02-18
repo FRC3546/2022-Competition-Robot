@@ -6,12 +6,11 @@
 //Timer has been changed to autoTimer and reset/start
 //has been moved to autonomousinit to fix timing problems while testing autonomous
 
-
-
-
-
-
-
+/**
+ * CHANGE LOG:
+ * 
+ * 2/18/22 BAC: Added Change Log
+ */
 
 
 package frc.robot;
