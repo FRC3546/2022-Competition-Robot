@@ -446,6 +446,8 @@ public class Robot extends TimedRobot {
             ActivateConveyor();
             ActivateIntake();
             autoMove(5, -1);
+            while (isAutonomous());
+
 
           } break;
         }
