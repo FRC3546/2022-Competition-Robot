@@ -3,6 +3,16 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
+//Timer has been changed to autoTimer and reset/start
+//has been moved to autonomousinit to fix timing problems while testing autonomous
+
+
+
+
+
+
+
+
 
 package frc.robot;
 
@@ -93,7 +103,7 @@ public class Robot extends TimedRobot {
   private String ShooterValue = "OFF";
 
   // creates game timer
-  private final Timer timer = new Timer();
+  private final Timer autoTimer = new Timer();
 
   private double intakeTimer;
 
@@ -233,14 +243,12 @@ public class Robot extends TimedRobot {
     {
       intake_motor.set(0.5);
       Intake_Solenoid.set(Value.kForward);
-      intakeTimer = timer.get();
       IntakeValue = true;
       intakeTimer = Timer.getFPGATimestamp();
     }
 
     public void RetractIntake()
     {
-
       Intake_Solenoid.set(Value.kReverse);
     }
 
@@ -250,6 +258,11 @@ public class Robot extends TimedRobot {
       IntakeValue = false;
     }
 
+    public void autoPause(double time){
+      double pauseStart = Timer.getFPGATimestamp();
+      while (Timer.getFPGATimestamp() <= (pauseStart + time) && isAutonomous());
+      
+    }
 
     public void autoMove(double time, double speed)
     {
@@ -286,10 +299,6 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
 
-    // resets then starts timer as robot is enabled
-    timer.reset();
-    timer.start();
-
     // inverts both sides of the drivetrain(forward on controllers is negative y values)
     left_motor.setInverted(true);
     right_motor.setInverted(true);
@@ -312,8 +321,8 @@ public class Robot extends TimedRobot {
     SmartDashboard.putData("Cargo Options", m_cargochooser);
 
     // creates chooser options and displays for order
-    m_order.addOption("Deposit First", DepositFirst);
-    m_order.addOption("Fetch First", FetchFirst);
+    m_order.addOption("Deposit Ball The Fetch and Deposit Other", DepositFirst);
+    m_order.addOption("Fetch then Deposit both", FetchFirst);
     SmartDashboard.putData("Order for Get Cargo", m_order);
     
     // creates drive train object of differential drive class
@@ -365,7 +374,8 @@ public class Robot extends TimedRobot {
    */
 
    //autonomous vairables
-  int autoRotateAmount;
+  int autoDepositRotate;
+  int autoFetchRotate;
 
 
 
@@ -376,21 +386,24 @@ public class Robot extends TimedRobot {
     m_autoCargo = m_cargochooser.getSelected();
     m_autoOrder = m_order.getSelected();
     
-    timer.reset();
-    timer.start();
+    autoTimer.reset();
+    autoTimer.start();
     // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     // System.out.println("Auto selected: " + m_autoSelected);
 
 
     switch(m_autoCargo){
       case(WallCargo):{
-        autoRotateAmount = 90;
+        autoFetchRotate = 90;
+        autoDepositRotate = 90;
       }
       case(TerminalCargo):{
-        autoRotateAmount = 90;
+        autoFetchRotate = 90;
+        autoDepositRotate = 90;
       }
       case(HangarCargo):{
-        autoRotateAmount = 90;
+        autoFetchRotate = 90;
+        autoDepositRotate = 90;
       }
     }
 
@@ -414,7 +427,7 @@ public class Robot extends TimedRobot {
             autoMove(3, -1);
             deactivateIntakeMotor();
             autoMove(3.5, 1);
-            autoRotate(autoRotateAmount);
+            autoRotate(autoFetchRotate);
             lowShooterSpeed();
             autoMove(2,1);
             ReleaseCargo();
@@ -422,8 +435,17 @@ public class Robot extends TimedRobot {
           } break;
 
           case(DepositFirst):{
-
+            lowShooterSpeed();
             autoMove(2,1);
+            autoRotate(autoDepositRotate);
+            ReleaseCargo();
+            autoPause(2);
+            StopCargo();
+            DeactivateShooterMotor();
+            autoRotate(-autoDepositRotate);
+            ActivateConveyor();
+            ActivateIntake();
+            autoMove(5, -1);
 
           } break;
         }
@@ -441,10 +463,10 @@ public class Robot extends TimedRobot {
       break;
 
       case depositCargoleave:{
-        while (timer.get() < 2){
-          lowShooterSpeed();
-        } 
+        lowShooterSpeed();
+        autoPause(3);
         DeactivateShooterMotor();
+        autoMove(4, -1);
         while(isAutonomous());
         }
       break;
