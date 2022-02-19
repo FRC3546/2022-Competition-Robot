@@ -263,13 +263,13 @@ public class Robot extends TimedRobot {
 
     public void autoMove(double time, double speed)
     {
-      double autoHeading = gyro.getAngle();
-      double error;
+      // double autoHeading = gyro.getAngle();
+      // double error;
       double autoForwardStart = Timer.getFPGATimestamp();
       while (Timer.getFPGATimestamp() < (autoForwardStart + time) && isAutonomous())
       {
-        error = autoHeading - gyro.getAngle();
-        drive_train.tankDrive(-1 * speed + error,-1 * speed - error);
+        // error = autoHeading - gyro.getAngle();
+        drive_train.tankDrive(-1 * speed,-1 * speed);
       }
       drive_train.stopMotor();
     }
@@ -479,7 +479,7 @@ public class Robot extends TimedRobot {
         ReleaseCargo();
         autoPause(2);
         DeactivateShooterMotor();
-        autoMove(3, -1);
+        autoMove(3, -.7);
         while(isAutonomous());
         }
       break;
@@ -516,6 +516,7 @@ public class Robot extends TimedRobot {
     // checks if intake should be on then runs corresponding method
       if(IntakeButton.get()){
       ActivateIntake();
+      ActivateConveyor();
       }
       else{
       RetractIntake();
@@ -571,6 +572,7 @@ public class Robot extends TimedRobot {
 
       if (cargoReleaseButton.get()) {
         ReleaseCargo();
+        ActivateConveyor();
       }
       else {
         StopCargo();
