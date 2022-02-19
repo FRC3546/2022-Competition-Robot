@@ -10,8 +10,8 @@
  * CHANGE LOG:
  * 
  * 2/18/22 BAC: Added Change Log
- * 2/19/22 JMF: Fixed autonomous by adding missing functions and changed gyro directions
- * 
+ * 2/18/22 JMF: Fixed autonomous by adding missing functions and changed gyro directions
+ * 2/19/22 JMF: Changed solenoids,
  */
 
 
