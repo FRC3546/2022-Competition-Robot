@@ -10,6 +10,8 @@
  * CHANGE LOG:
  * 2/17/22 CF: Changed timer name to auto timer 
  * 2/18/22 BAC: Added Change Log
+ * 2/18/22 JMF: Fixed autonomous by adding missing functions and changed gyro directions
+ * 2/19/22 JMF: Changed solenoids,
  */
 
 
@@ -89,9 +91,9 @@ public class Robot extends TimedRobot {
   private JoystickButton climberDeactivationButton = new JoystickButton(codriver_controller, 4);
 
   // Creates double solenoids for future reference
-  private DoubleSolenoid Intake_Solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 0, 1);
-  private DoubleSolenoid CargoRelease_Solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2, 3);
-  private DoubleSolenoid Climber_Solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 4, 5);
+  private DoubleSolenoid Intake_Solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2, 3);
+  private DoubleSolenoid CargoRelease_Solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 4, 5);
+  private DoubleSolenoid Climber_Solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 6, 7);
 
   // values for toggle(with seperate buttons) buttons
   private boolean isDriveTrainInverted = false;
