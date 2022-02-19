@@ -283,11 +283,11 @@ public class Robot extends TimedRobot {
       {
      if (degree > 0)
      {
-      drive_train.tankDrive(-1, 1);
+      drive_train.tankDrive(-.5, .5);
      }
      if (degree < 0 )
      {
-      drive_train.tankDrive(1, -1);
+      drive_train.tankDrive(.5, -.5);
      }
         
       }
@@ -397,16 +397,16 @@ public class Robot extends TimedRobot {
 
     switch(m_autoCargo){
       case(WallCargo):{
-        autoFetchRotate = 90;
-        autoDepositRotate = 90;
+        autoFetchRotate = 0;
+        autoDepositRotate = 0;
       }
       case(TerminalCargo):{
-        autoFetchRotate = 90;
-        autoDepositRotate = 90;
+        autoFetchRotate = -35;
+        autoDepositRotate = -35;
       }
       case(HangarCargo):{
-        autoFetchRotate = 90;
-        autoDepositRotate = 90;
+        autoFetchRotate = -15;
+        autoDepositRotate = -15;
       }
       case(Nothing):{
         // does nothing
@@ -430,12 +430,12 @@ public class Robot extends TimedRobot {
           case(FetchFirst):{
             ActivateIntake();
             ActivateConveyor();
-            autoMove(3, -1);
+            autoMove(2, -1);
             deactivateIntakeMotor();
             autoMove(3.5, 1);
             autoRotate(autoFetchRotate);
             lowShooterSpeed();
-            autoMove(2,1);
+            autoPause(2);
             ReleaseCargo();
             while(isAutonomous());
           } break;
@@ -443,7 +443,7 @@ public class Robot extends TimedRobot {
           case(DepositFirst):{
             lowShooterSpeed();
             ActivateConveyor();
-            autoMove(2,1);
+            autoMove(1,.7);
             autoRotate(autoDepositRotate);
             ReleaseCargo();
             autoPause(2);
@@ -451,7 +451,7 @@ public class Robot extends TimedRobot {
             DeactivateShooterMotor();
             autoRotate(-autoDepositRotate);
             ActivateIntake();
-            autoMove(5, -1);
+            autoMove(3.5, -1);
             while (isAutonomous());
           } break;
 
