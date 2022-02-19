@@ -8,10 +8,11 @@
 
 /**
  * CHANGE LOG:
- * 
+ * 2/17/22 CF: Changed timer name to auto timer & created autoPause() 
  * 2/18/22 BAC: Added Change Log
  * 2/18/22 JMF: Fixed autonomous by adding missing functions and changed gyro directions
  * 2/19/22 JMF: Changed solenoid IO location, fixed autonomous direction for LeaveTarmac and solenoid values
+ * 2/19/22 CF: Modified autonomous values and added heading maitnence system.
  */
 
 
@@ -262,10 +263,13 @@ public class Robot extends TimedRobot {
 
     public void autoMove(double time, double speed)
     {
+      double autoHeading = gyro.getAngle();
+      double error;
       double autoForwardStart = Timer.getFPGATimestamp();
       while (Timer.getFPGATimestamp() < (autoForwardStart + time) && isAutonomous())
       {
-        drive_train.tankDrive(-1 * speed,-1 * speed);
+        error = autoHeading - gyro.getAngle();
+        drive_train.tankDrive(-1 * speed + error,-1 * speed - error);
       }
       drive_train.stopMotor();
     }
@@ -278,11 +282,11 @@ public class Robot extends TimedRobot {
       {
      if (degree > 0)
      {
-      drive_train.tankDrive(-1, 1);
+      drive_train.tankDrive(-.5, .5);
      }
      if (degree < 0 )
      {
-      drive_train.tankDrive(1, -1);
+      drive_train.tankDrive(.5, -.5);
      }
         
       }
@@ -393,16 +397,16 @@ public class Robot extends TimedRobot {
 
     switch(m_autoCargo){
       case(WallCargo):{
-        autoFetchRotate = 90;
-        autoDepositRotate = 90;
+        autoFetchRotate = 0;
+        autoDepositRotate = 0;
       }
       case(TerminalCargo):{
-        autoFetchRotate = 90;
-        autoDepositRotate = 90;
+        autoFetchRotate = -35;
+        autoDepositRotate = -35;
       }
       case(HangarCargo):{
-        autoFetchRotate = 90;
-        autoDepositRotate = 90;
+        autoFetchRotate = -15;
+        autoDepositRotate = -15;
       }
       case(Nothing):{
         // does nothing
@@ -426,12 +430,12 @@ public class Robot extends TimedRobot {
           case(FetchFirst):{
             ActivateIntake();
             ActivateConveyor();
-            autoMove(3, -1);
+            autoMove(2, -1);
             deactivateIntakeMotor();
             autoMove(3.5, 1);
             autoRotate(autoFetchRotate);
             lowShooterSpeed();
-            autoMove(2,1);
+            autoPause(2);
             ReleaseCargo();
             while(isAutonomous());
           } break;
@@ -439,7 +443,7 @@ public class Robot extends TimedRobot {
           case(DepositFirst):{
             lowShooterSpeed();
             ActivateConveyor();
-            autoMove(2,1);
+            autoMove(1,.7);
             autoRotate(autoDepositRotate);
             ReleaseCargo();
             autoPause(2);
@@ -447,7 +451,7 @@ public class Robot extends TimedRobot {
             DeactivateShooterMotor();
             autoRotate(-autoDepositRotate);
             ActivateIntake();
-            autoMove(5, -1);
+            autoMove(3.5, -1);
             while (isAutonomous());
           } break;
 
@@ -475,7 +479,7 @@ public class Robot extends TimedRobot {
         ReleaseCargo();
         autoPause(2);
         DeactivateShooterMotor();
-        autoMove(4, -1);
+        autoMove(3, -1);
         while(isAutonomous());
         }
       break;
