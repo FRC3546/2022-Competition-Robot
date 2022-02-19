@@ -11,7 +11,7 @@
  * 
  * 2/18/22 BAC: Added Change Log
  * 2/18/22 JMF: Fixed autonomous by adding missing functions and changed gyro directions
- * 2/19/22 JMF: Changed solenoids,
+ * 2/19/22 JMF: Changed solenoid IO location, fixed autonomous direction for LeaveTarmac and solenoid values
  */
 
 
@@ -89,6 +89,7 @@ public class Robot extends TimedRobot {
   private JoystickButton ClimberReturnButton = new JoystickButton(codriver_controller, 3);
   private JoystickButton climberActivationButton = new JoystickButton(codriver_controller, 6);
   private JoystickButton climberDeactivationButton = new JoystickButton(codriver_controller, 4);
+  private JoystickButton cargoReleaseButton = new JoystickButton(codriver_controller, 1);
 
   // Creates double solenoids for future reference
   private DoubleSolenoid Intake_Solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2, 3);
@@ -187,12 +188,6 @@ public class Robot extends TimedRobot {
     } 
 
 
-    // Methods for the Shooter
-    public void ActivateShooterMotor()
-    {
-    shooter_motor.set(1);
-    }
-
     public void DeactivateShooterMotor()
     {
       shooter_motor.set(0);
@@ -216,13 +211,13 @@ public class Robot extends TimedRobot {
     // Methods for the Climber
     public void TiltClimber()
     {
-      Climber_Solenoid.set(Value.kForward);
+      Climber_Solenoid.set(Value.kReverse);
       ClimberTiltValue = true;
     }
 
     public void ReturnClimber()
     {
-      Climber_Solenoid.set(Value.kReverse);
+      Climber_Solenoid.set(Value.kForward);
       ClimberTiltValue = false;
     }
 
@@ -334,6 +329,7 @@ public class Robot extends TimedRobot {
     //makes sure that cargo stopper and climber are in starting position
     ReturnClimber();
     StopCargo();
+    RetractIntake();
 
     // starts camera
     CameraServer.startAutomaticCapture();
@@ -462,7 +458,7 @@ public class Robot extends TimedRobot {
       }
 
       case LeaveTarmac:{
-        autoMove(2, .5);
+        autoMove(2, -0.5);
         while(isAutonomous());
         }
       break;
@@ -567,6 +563,13 @@ public class Robot extends TimedRobot {
       }
       else if(ClimberReturnButton.get()) {
         ReturnClimber();
+      }
+
+      if (cargoReleaseButton.get()) {
+        ReleaseCargo();
+      }
+      else {
+        StopCargo();
       }
 
 
