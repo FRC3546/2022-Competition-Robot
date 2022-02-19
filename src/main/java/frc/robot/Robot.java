@@ -267,10 +267,13 @@ public class Robot extends TimedRobot {
 
     public void autoMove(double time, double speed)
     {
+      double autoHeading = gyro.getAngle();
+      double error;
       double autoForwardStart = Timer.getFPGATimestamp();
       while (Timer.getFPGATimestamp() < (autoForwardStart + time) && isAutonomous())
       {
-        drive_train.tankDrive(-1 * speed,-1 * speed);
+        error = autoHeading - gyro.getAngle();
+        drive_train.tankDrive(-1 * speed + error,-1 * speed - error);
       }
       drive_train.stopMotor();
     }
@@ -479,7 +482,7 @@ public class Robot extends TimedRobot {
         ReleaseCargo();
         autoPause(2);
         DeactivateShooterMotor();
-        autoMove(4, -1);
+        autoMove(3, -1);
         while(isAutonomous());
         }
       break;
