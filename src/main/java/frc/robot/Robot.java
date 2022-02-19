@@ -264,13 +264,13 @@ public class Robot extends TimedRobot {
 
     public void autoMove(double time, double speed)
     {
-      double autoHeading = gyro.getAngle();
-      double error;
+      // double autoHeading = gyro.getAngle();
+      // double error;
       double autoForwardStart = Timer.getFPGATimestamp();
       while (Timer.getFPGATimestamp() < (autoForwardStart + time) && isAutonomous())
       {
-        error = autoHeading - gyro.getAngle();
-        driveTrain.tankDrive(-1 * speed + error,-1 * speed - error);
+        // error = autoHeading - gyro.getAngle();
+        driveTrain.tankDrive(-1 * speed,-1 * speed);
       }
       driveTrain.stopMotor();
     }
@@ -480,7 +480,7 @@ public class Robot extends TimedRobot {
         ReleaseCargo();
         autoPause(2);
         DeactivateShooterMotor();
-        autoMove(3, -1);
+        autoMove(3, -.7);
         while(isAutonomous());
         }
       break;
@@ -585,7 +585,7 @@ public class Robot extends TimedRobot {
       {
       climberExtension.set(coDriverController.getY());
       }
-      
+
   }
 
   /** This function is called once when the robot is disabled. */
