@@ -8,7 +8,7 @@
 
 /**
  * CHANGE LOG:
- * 
+ * 2/17/22 CF: Changed timer name to auto timer 
  * 2/18/22 BAC: Added Change Log
  */
 
