@@ -12,7 +12,7 @@
  * 2/18/22 BAC: Added Change Log
  * 2/18/22 JMF: Fixed autonomous by adding missing functions and changed gyro directions
  * 2/19/22 JMF: Changed solenoid IO location, fixed autonomous direction for leaveTarmac and solenoid values, 
- * renamed every variable to be more uniformed.
+ * renamed every variable to be more uniformed, and adjusted conveyor speed.
  * 2/19/22 CF: Modified autonomous values and added heading maitnence system.
  */
 
@@ -173,7 +173,7 @@ public class Robot extends TimedRobot {
     // Methods for the Conveyor
     public void ActivateConveyor()
     {
-      conveyorMotor.set(1);
+      conveyorMotor.set(0.8);
       conveyorValue = true;
     }
 
