@@ -8,10 +8,11 @@
 
 /**
  * CHANGE LOG:
- * 2/17/22 CF: Changed timer name to auto timer 
+ * 2/17/22 CF: Changed timer name to auto timer & created autoPause() 
  * 2/18/22 BAC: Added Change Log
  * 2/18/22 JMF: Fixed autonomous by adding missing functions and changed gyro directions
  * 2/19/22 JMF: Changed solenoids,
+ * 2/19/22 CF: Modified autonomous values and added heading maitnence system.
  */
 
 
