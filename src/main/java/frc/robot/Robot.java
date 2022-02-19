@@ -281,11 +281,11 @@ public class Robot extends TimedRobot {
       {
      if (degree > 0)
      {
-      drive_train.tankDrive(1, -1);
+      drive_train.tankDrive(-1, 1);
      }
      if (degree < 0 )
      {
-      drive_train.tankDrive(-1, 1);
+      drive_train.tankDrive(1, -1);
      }
         
       }
@@ -317,11 +317,13 @@ public class Robot extends TimedRobot {
     m_cargochooser.addOption("Wall Cargo", WallCargo);
     m_cargochooser.addOption("Terminal Cargo", TerminalCargo);
     m_cargochooser.addOption("Hangar Cargo", HangarCargo);
+    m_cargochooser.setDefaultOption("Do nothing", Nothing);
     SmartDashboard.putData("Cargo Options", m_cargochooser);
 
     // creates chooser options and displays for order
     m_order.addOption("Deposit Ball The Fetch and Deposit Other", DepositFirst);
     m_order.addOption("Fetch then Deposit both", FetchFirst);
+    m_order.setDefaultOption("Do nothing", Nothing);
     SmartDashboard.putData("Order for Get Cargo", m_order);
     
     // creates drive train object of differential drive class
@@ -404,6 +406,9 @@ public class Robot extends TimedRobot {
         autoFetchRotate = 90;
         autoDepositRotate = 90;
       }
+      case(Nothing):{
+        // does nothing
+      }
     }
 
 
@@ -435,6 +440,7 @@ public class Robot extends TimedRobot {
 
           case(DepositFirst):{
             lowShooterSpeed();
+            ActivateConveyor();
             autoMove(2,1);
             autoRotate(autoDepositRotate);
             ReleaseCargo();
@@ -442,13 +448,14 @@ public class Robot extends TimedRobot {
             StopCargo();
             DeactivateShooterMotor();
             autoRotate(-autoDepositRotate);
-            ActivateConveyor();
             ActivateIntake();
             autoMove(5, -1);
             while (isAutonomous());
-
-
           } break;
+
+          case(Nothing):{
+            // does nothing
+          }
         }
       }
 
@@ -465,7 +472,10 @@ public class Robot extends TimedRobot {
 
       case depositCargoleave:{
         lowShooterSpeed();
-        autoPause(3);
+        ActivateConveyor();
+        autoPause(2);
+        ReleaseCargo();
+        autoPause(2);
         DeactivateShooterMotor();
         autoMove(4, -1);
         while(isAutonomous());
