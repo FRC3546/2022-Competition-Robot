@@ -513,7 +513,7 @@ public class Robot extends TimedRobot {
 
 
     // checks if conveyer should be running in a direction or be shut off then runs corresponding method
-    if (conveyorForwardButton.get() || intakeValue || (shooterValue != "OFF")) {
+    if (conveyorForwardButton.get() || intakeValue || (!shooterValue.equals("OFF"))) {
       ActivateConveyor();
     }
     else if (conveyorReverseButton.get()) {
