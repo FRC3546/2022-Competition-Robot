@@ -35,8 +35,6 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 
-import javax.lang.model.util.ElementScanner6;
-
 // import for the Nav X gyro
 import com.kauailabs.navx.frc.AHRS;
 
@@ -88,7 +86,7 @@ public class Robot extends TimedRobot {
   private JoystickButton shooterOffButton = new JoystickButton(coDriverController, 9);
   private JoystickButton lowerShootingSpeedButton = new JoystickButton(coDriverController, 11);
   private JoystickButton conveyorForwardButton = new JoystickButton(coDriverController, 8);
-  private JoystickButton conveyorStopButton = new JoystickButton(coDriverController, 10);
+  // private JoystickButton conveyorStopButton = new JoystickButton(coDriverController, 10);
   private JoystickButton conveyorReverseButton = new JoystickButton(coDriverController, 12);
   private JoystickButton climberTiltButton = new JoystickButton(coDriverController, 5);
   private JoystickButton climberReturnButton = new JoystickButton(coDriverController, 3);
