@@ -14,6 +14,7 @@
  * 2/19/22 JMF: Changed solenoid IO location, fixed autonomous direction for leaveTarmac and solenoid values, 
  * renamed every variable to be more uniformed, and adjusted conveyor speed.
  * 2/19/22 CF: Modified autonomous values and added heading maitnence system.
+ * 2/20/22 BAC: New conveyer logic, associated with intake,shooting or button press
  */
 
 
@@ -33,6 +34,8 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+
+import javax.lang.model.util.ElementScanner6;
 
 // import for the Nav X gyro
 import com.kauailabs.navx.frc.AHRS;
@@ -517,7 +520,7 @@ public class Robot extends TimedRobot {
     // checks if intake should be on then runs corresponding method
       if(intakeButton.get()){
       ActivateIntake();
-      ActivateConveyor();
+      // ActivateConveyor();
       }
       else{
       RetractIntake();
@@ -548,7 +551,22 @@ public class Robot extends TimedRobot {
       }
 
 
-      // checks if conveyor should be running in a direction or be shut off then runs corresponding method
+      // checks if conveyer should be running in a direction or be shut off then runs corresponding method
+      if(conveyorForwardButton.get() || intakeValue || (shooterValue != "OFF"))
+      {
+        ActivateConveyor();
+      }
+      else if(conveyorReverseButton.get())
+      {
+        ReverseConveyor();
+      }
+      else
+      {
+        DeactivateConveyor();
+      }
+
+
+      /* // checks if conveyor should be running in a direction or be shut off then runs corresponding method
       if(conveyorStopButton.get())
       {
         DeactivateConveyor();
@@ -561,7 +579,7 @@ public class Robot extends TimedRobot {
       {
         ReverseConveyor();
       }
-
+ */
 
       // checks if climber should be tilted or returned then runs corresponding method
       if(climberTiltButton.get()) {
@@ -573,7 +591,7 @@ public class Robot extends TimedRobot {
 
       if (cargoReleaseButton.get()) {
         ReleaseCargo();
-        ActivateConveyor();
+        // ActivateConveyor();
       }
       else {
         StopCargo();
