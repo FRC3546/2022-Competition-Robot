@@ -15,6 +15,7 @@
  * renamed every variable to be more uniformed, and adjusted conveyor speed.
  * 2/19/22 CF: Modified autonomous values and added heading maitnence system.
  * 2/20/22 BAC: New conveyer logic, associated with intake,shooting or button press
+ * 2/20/22 BAC: New low/high cargo release buttons to automate shooter motor; cleaned up indenting/spacing
  */
 
 
@@ -82,9 +83,9 @@ public class Robot extends TimedRobot {
   private JoystickButton gyroResetButton = new JoystickButton(leftDriverController, 10);
 
   // Co-driver buttons
-  private JoystickButton higherShootingSpeedButton = new JoystickButton(coDriverController, 7);
-  private JoystickButton shooterOffButton = new JoystickButton(coDriverController, 9);
-  private JoystickButton lowerShootingSpeedButton = new JoystickButton(coDriverController, 11);
+  //private JoystickButton higherShootingSpeedButton = new JoystickButton(coDriverController, 7);
+  //private JoystickButton shooterOffButton = new JoystickButton(coDriverController, 9);
+  //private JoystickButton lowerShootingSpeedButton = new JoystickButton(coDriverController, 11);
   private JoystickButton conveyorForwardButton = new JoystickButton(coDriverController, 8);
   // private JoystickButton conveyorStopButton = new JoystickButton(coDriverController, 10);
   private JoystickButton conveyorReverseButton = new JoystickButton(coDriverController, 12);
@@ -92,7 +93,9 @@ public class Robot extends TimedRobot {
   private JoystickButton climberReturnButton = new JoystickButton(coDriverController, 3);
   private JoystickButton climberActivationButton = new JoystickButton(coDriverController, 6);
   private JoystickButton climberDeactivationButton = new JoystickButton(coDriverController, 4);
-  private JoystickButton cargoReleaseButton = new JoystickButton(coDriverController, 1);
+  private JoystickButton lowCargoReleaseButton = new JoystickButton(coDriverController, 1);
+  private JoystickButton highCargoReleaseButton = new JoystickButton(coDriverController, 2);
+
 
   // Creates double solenoids for future reference
   private DoubleSolenoid intakeSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2, 3);
@@ -153,146 +156,118 @@ public class Robot extends TimedRobot {
   final double kP = 1;
 
   // method for finding our toggle button values
-    public void updateButtonValues()
-    {
-      if(driveTrainInvertButton.get()) {
-        isDriveTrainInverted = true;
-      }
-      else if(driveTrainReturnButton.get())
-      {
-        isDriveTrainInverted = false;
-      }
-      if(climberActivationButton.get()) {
-        isClimberActivated = true;
-      }
-      else if(climberDeactivationButton.get())
-      {
-        isClimberActivated = false;
-      }
+  public void updateButtonValues() {
+    if (driveTrainInvertButton.get()) {
+      isDriveTrainInverted = true;
     }
-
-    // Methods for the Conveyor
-    public void ActivateConveyor()
-    {
-      conveyorMotor.set(0.8);
-      conveyorValue = true;
+    else if (driveTrainReturnButton.get()) {
+      isDriveTrainInverted = false;
     }
-
-    public void DeactivateConveyor()
-    {
-      conveyorMotor.set(0);
-      conveyorValue = false;
+    if (climberActivationButton.get()) {
+      isClimberActivated = true;
     }
-
-    public void ReverseConveyor()
-    {
-      conveyorMotor.set(-0.5);
-      conveyorValue = true;
-    } 
-
-
-    public void DeactivateShooterMotor()
-    {
-      shooterMotor.set(0);
-      shooterValue = "OFF";
+    else if (climberDeactivationButton.get()) {
+      isClimberActivated = false;
     }
+  }
+
+  // Methods for the Conveyor
+  public void ActivateConveyor() {
+    conveyorMotor.set(0.8);
+    conveyorValue = true;
+  }
+
+  public void DeactivateConveyor() {
+    conveyorMotor.set(0);
+    conveyorValue = false;
+  }
+
+  public void ReverseConveyor() {
+    conveyorMotor.set(-0.5);
+    conveyorValue = true;
+  } 
+
+
+  public void DeactivateShooterMotor() {
+    shooterMotor.set(0);
+    shooterValue = "OFF";
+  }
     
-    public void lowShooterSpeed()
-    {
-      shooterMotor.set(0.5);
-      shooterValue = "LOW SPEED";
+  public void lowShooterSpeed() {
+    shooterMotor.set(0.5);
+    shooterValue = "LOW SPEED";
+  }
 
+  public void highShooterSpeed() {
+    shooterMotor.set(0.8);
+    shooterValue = "HIGH SPEED";
+  }
+
+  // Methods for the Climber
+  public void TiltClimber() {
+    climberSolenoid.set(Value.kReverse);
+    climberTiltValue = true;
+  }
+
+  public void ReturnClimber() {
+    climberSolenoid.set(Value.kForward);
+    climberTiltValue = false;
+  }
+
+  // Methods for the Cargo
+  public void ReleaseCargo() {
+    cargoReleaseSolenoid.set(Value.kReverse);
+  }
+
+  public void StopCargo() {
+    cargoReleaseSolenoid.set(Value.kForward);
+  }
+
+  // Methods for Intake
+  public void ActivateIntake() {
+    intakeMotor.set(0.5);
+    intakeSolenoid.set(Value.kForward);
+    intakeValue = true;
+    intakeTimer = Timer.getFPGATimestamp();
+  }
+
+  public void RetractIntake() {
+    intakeSolenoid.set(Value.kReverse);
+  }
+
+  public void deactivateIntakeMotor() {
+    intakeMotor.set(0);
+    intakeValue = false;
+  }
+
+  public void autoPause(double time) {
+    double pauseStart = Timer.getFPGATimestamp();
+    while (Timer.getFPGATimestamp() <= (pauseStart + time) && isAutonomous());
+  }
+
+  public void autoMove(double time, double speed) {
+    // double autoHeading = gyro.getAngle();
+    // double error;
+    double autoForwardStart = Timer.getFPGATimestamp();
+    while (Timer.getFPGATimestamp() < (autoForwardStart + time) && isAutonomous()) {
+      // error = autoHeading - gyro.getAngle();
+      driveTrain.tankDrive(-1 * speed,-1 * speed);
     }
+    driveTrain.stopMotor();
+  }
 
-    public void highShooterSpeed()
-    {
-      shooterMotor.set(0.8);
-      shooterValue = "HIGH SPEED";
-    }
-
-
-    // Methods for the Climber
-    public void TiltClimber()
-    {
-      climberSolenoid.set(Value.kReverse);
-      climberTiltValue = true;
-    }
-
-    public void ReturnClimber()
-    {
-      climberSolenoid.set(Value.kForward);
-      climberTiltValue = false;
-    }
-
-
-    // Methods for the Cargo
-    public void ReleaseCargo()
-    {
-      cargoReleaseSolenoid.set(Value.kReverse);
-    }
-
-    public void StopCargo()
-    {
-      cargoReleaseSolenoid.set(Value.kForward);
-    }
-
-
-    // Methods for Intake
-    public void ActivateIntake()
-    {
-      intakeMotor.set(0.5);
-      intakeSolenoid.set(Value.kForward);
-      intakeValue = true;
-      intakeTimer = Timer.getFPGATimestamp();
-    }
-
-    public void RetractIntake()
-    {
-      intakeSolenoid.set(Value.kReverse);
-    }
-
-    public void deactivateIntakeMotor()
-    {
-      intakeMotor.set(0);
-      intakeValue = false;
-    }
-
-    public void autoPause(double time){
-      double pauseStart = Timer.getFPGATimestamp();
-      while (Timer.getFPGATimestamp() <= (pauseStart + time) && isAutonomous());
-      
-    }
-
-    public void autoMove(double time, double speed)
-    {
-      // double autoHeading = gyro.getAngle();
-      // double error;
-      double autoForwardStart = Timer.getFPGATimestamp();
-      while (Timer.getFPGATimestamp() < (autoForwardStart + time) && isAutonomous())
-      {
-        // error = autoHeading - gyro.getAngle();
-        driveTrain.tankDrive(-1 * speed,-1 * speed);
-      }
-      driveTrain.stopMotor();
-    }
-
-    public void autoRotate(int degree)
-    {
+  public void autoRotate(int degree) {
     gyro.zeroYaw();
 
-     while (Math.abs(gyro.getYaw() - degree) > 2 && isAutonomous())
-      {
-     if (degree > 0)
-     {
-      driveTrain.tankDrive(-.5, .5);
-     }
-     if (degree < 0 )
-     {
-      driveTrain.tankDrive(.5, -.5);
-     }
-        
+    while (Math.abs(gyro.getYaw() - degree) > 2 && isAutonomous()) {
+      if (degree > 0) {
+        driveTrain.tankDrive(-.5, .5);
+      }
+      if (degree < 0 ) {
+        driveTrain.tankDrive(.5, -.5);
       }
     }
+  }
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -339,7 +314,6 @@ public class Robot extends TimedRobot {
 
     // starts camera
     CameraServer.startAutomaticCapture();
-
   }
 
   /**
@@ -382,8 +356,6 @@ public class Robot extends TimedRobot {
   int autoDepositRotate;
   int autoFetchRotate;
 
-
-
   @Override
   public void autonomousInit() {
     //gets selections from smart dashboard
@@ -396,21 +368,20 @@ public class Robot extends TimedRobot {
     // autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     // System.out.println("Auto selected: " + autoSelected);
 
-
-    switch(autoCargo){
-      case(wallCargo):{
+    switch(autoCargo) {
+      case(wallCargo): {
         autoFetchRotate = 0;
         autoDepositRotate = 0;
       }
-      case(terminalCargo):{
+      case(terminalCargo): {
         autoFetchRotate = -35;
         autoDepositRotate = -35;
       }
-      case(hangarCargo):{
+      case(hangarCargo): {
         autoFetchRotate = -15;
         autoDepositRotate = -15;
       }
-      case(Nothing):{
+      case(Nothing): {
         // does nothing
       }
     }
@@ -424,12 +395,11 @@ public class Robot extends TimedRobot {
 
     // runs specific auto routines depending on selected options
     switch (autoSelected) {
-      case getCargo:
-      {
+      case getCargo: {
+
         //Routine For if we choose to get cargo
-        switch(autoOrder){
-          //If we choose to fetch the ball first
-          case(fetchFirst):{
+        switch(autoOrder) {
+          case(fetchFirst): { //If we choose to fetch the cargo first
             ActivateIntake();
             ActivateConveyor();
             autoMove(2, -1);
@@ -440,9 +410,10 @@ public class Robot extends TimedRobot {
             autoPause(2);
             ReleaseCargo();
             while(isAutonomous());
-          } break;
+          }
+          break;
 
-          case(depositFirst):{
+          case(depositFirst): { //If we choose to deposit the cargo first
             lowShooterSpeed();
             ActivateConveyor();
             autoMove(1,.7);
@@ -455,26 +426,27 @@ public class Robot extends TimedRobot {
             ActivateIntake();
             autoMove(3.5, -1);
             while (isAutonomous());
-          } break;
+          }
+          break;
 
-          case(Nothing):{
+          case(Nothing): {
             // does nothing
           }
         }
       }
 
-      case leaveTarmac:{
+      case leaveTarmac: { //If we choose to simply leave the Tarmac
         autoMove(2, -0.5);
         while(isAutonomous());
         }
       break;
       
-      case Nothing:{      
+      case Nothing: {      
         while(isAutonomous());
         }
-      break;
+        break;
 
-      case depositCargoleave:{
+      case depositCargoleave: { //If we choose to deposit the cargo and then leave the Tarmac
         lowShooterSpeed();
         ActivateConveyor();
         autoPause(2);
@@ -484,12 +456,11 @@ public class Robot extends TimedRobot {
         autoMove(3, -.7);
         while(isAutonomous());
         }
-      break;
+        break;
 
-      case test: {
-        //used for testing functions during autonomous periodic
+      case test: { //used for testing functions during autonomous periodic
         }
-      break;
+        break;
       }
   }
 
@@ -506,102 +477,93 @@ public class Robot extends TimedRobot {
     updateButtonValues();
 
     // drive train and inverts if inversion is true
-    if (isDriveTrainInverted == true)
-    {
+    if (isDriveTrainInverted == true) {
       driveTrain.tankDrive(rightDriverController.getY() * -1, leftDriverController.getY() * -1);
     }
-    else
-    {
+    else {
       driveTrain.tankDrive(leftDriverController.getY(), rightDriverController.getY());
     }
 
     // checks if intake should be on then runs corresponding method
-      if(intakeButton.get()){
+    if (intakeButton.get()) {
       ActivateIntake();
-      // ActivateConveyor();
-      }
-      else{
+    }
+    else {
       RetractIntake();
-      }
-      if (Timer.getFPGATimestamp() > intakeTimer + 3){
+    }
+    if (Timer.getFPGATimestamp() > intakeTimer + 3){
       deactivateIntakeMotor();
-      }
+    }
       
-      // checks if gyro button is being reset then resets gyro if it needs to be reset
-      if(gyroResetButton.get())
-      {
-        gyro.zeroYaw();
-      }
+    // checks if gyro button is being reset then resets gyro if it needs to be reset
+    if (gyroResetButton.get()) {
+      gyro.zeroYaw();
+    }
+
+    /* // checks if shooter speed buttons are pressed or off button is pressed then calls corresponding method
+    if (shooterOffButton.get()) {
+      DeactivateShooterMotor();
+    }
+    else if (higherShootingSpeedButton.get()) {
+      highShooterSpeed();
+    }
+    else if (lowerShootingSpeedButton.get()) {
+      lowShooterSpeed();
+    } */
 
 
-      // checks if shooter speed buttons are pressed or off button is pressed then calls corresponding method
-      if (shooterOffButton.get())
-      {
-        DeactivateShooterMotor();
-      }
-      else if(higherShootingSpeedButton.get())
-      {
-        highShooterSpeed();
-      }
-      else if(lowerShootingSpeedButton.get())
-      {
-        lowShooterSpeed();
-      }
+    // checks if conveyer should be running in a direction or be shut off then runs corresponding method
+    if (conveyorForwardButton.get() || intakeValue || (shooterValue != "OFF")) {
+      ActivateConveyor();
+    }
+    else if (conveyorReverseButton.get()) {
+      ReverseConveyor();
+    }
+    else {
+      DeactivateConveyor();
+    }
 
 
-      // checks if conveyer should be running in a direction or be shut off then runs corresponding method
-      if(conveyorForwardButton.get() || intakeValue || (shooterValue != "OFF"))
-      {
-        ActivateConveyor();
-      }
-      else if(conveyorReverseButton.get())
-      {
-        ReverseConveyor();
-      }
-      else
-      {
-        DeactivateConveyor();
-      }
-
-
-      /* // checks if conveyor should be running in a direction or be shut off then runs corresponding method
-      if(conveyorStopButton.get())
-      {
-        DeactivateConveyor();
-      }
-      else if(conveyorForwardButton.get())
-      {
-        ActivateConveyor();
-      }
-      else if(conveyorReverseButton.get())
-      {
-        ReverseConveyor();
-      }
+    /* // checks if conveyor should be running in a direction or be shut off then runs corresponding method
+    if (conveyorStopButton.get()) {
+      DeactivateConveyor();
+    }
+    else if (conveyorForwardButton.get()) {
+      ActivateConveyor();
+    }
+    else if (conveyorReverseButton.get()) {
+      ReverseConveyor();
+    }
  */
 
-      // checks if climber should be tilted or returned then runs corresponding method
-      if(climberTiltButton.get()) {
-        TiltClimber();
-      }
-      else if(climberReturnButton.get()) {
-        ReturnClimber();
-      }
-
-      if (cargoReleaseButton.get()) {
-        ReleaseCargo();
-        // ActivateConveyor();
-      }
-      else {
-        StopCargo();
-      }
+    // checks if climber should be tilted or returned then runs corresponding method
+    if (climberTiltButton.get()) {
+      TiltClimber();
+    }
+    else if (climberReturnButton.get()) {
+      ReturnClimber();
+    }
 
 
-      // checks if climber is activated then takes y value as speed motor should be run
-      if (isClimberActivated == true)
-      {
+    // checks if cargo should be released at low or high speed and runs corresponding methods
+    if (lowCargoReleaseButton.get()) {
+      lowShooterSpeed();
+      ReleaseCargo();
+    }
+    else if (highCargoReleaseButton.get()) {
+      highShooterSpeed();
+      ReleaseCargo();
+    }
+    else {
+      StopCargo();
+      DeactivateShooterMotor();
+    }
+
+
+    // checks if climber is activated then takes y value as speed motor should be run
+    if (isClimberActivated == true) {
       climberExtension.set(coDriverController.getY());
-      }
-
+    }
   }
 
   /** This function is called once when the robot is disabled. */
