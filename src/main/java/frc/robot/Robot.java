@@ -18,7 +18,9 @@
  * 2/20/22 BAC: New low/high cargo release buttons to automate shooter motor; cleaned up indenting/spacing
  * 2/20/22 CF: Added commands to teleop init so that everything is set back to defaults/off
  * 2/21/22 CF: Swapped Double Solenoids for climber tilt
- * 2/21/22 CF: Changed intake motor deactivation delay to one second
+ * 2/21/22 CF: Changed intake motor deactivation delay to one and a half second
+ * 2/21/22 CF: changed turn values for auto routine to .75 speed
+ * 
  * 
  * 
  * 
