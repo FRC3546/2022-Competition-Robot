@@ -16,6 +16,12 @@
  * 2/19/22 CF: Modified autonomous values and added heading maitnence system.
  * 2/20/22 BAC: New conveyer logic, associated with intake,shooting or button press
  * 2/20/22 BAC: New low/high cargo release buttons to automate shooter motor; cleaned up indenting/spacing
+ * 2/20/22 CF: Added commands to teleop init so that everything is set back to defaults/off
+ * 2/21/22 CF: Swapped Double Solenoids for climber tilt
+ * 2/21/22 CF: Changed intake motor deactivation delay to one second
+ * 
+ * 
+ * 
  */
 
 
@@ -100,7 +106,7 @@ public class Robot extends TimedRobot {
   // Creates double solenoids for future reference
   private DoubleSolenoid intakeSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2, 3);
   private DoubleSolenoid cargoReleaseSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 4, 5);
-  private DoubleSolenoid climberSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 6, 7);
+  private DoubleSolenoid climberSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 7, 6);
 
   // values for toggle(with seperate buttons) buttons
   private boolean isDriveTrainInverted = false;
@@ -194,7 +200,7 @@ public class Robot extends TimedRobot {
   }
     
   public void lowShooterSpeed() {
-    shooterMotor.set(0.5);
+    shooterMotor.set(0.7);
     shooterValue = "LOW SPEED";
   }
 
@@ -259,14 +265,19 @@ public class Robot extends TimedRobot {
   public void autoRotate(int degree) {
     gyro.zeroYaw();
 
-    while (Math.abs(gyro.getYaw() - degree) > 2 && isAutonomous()) {
+    while (Math.abs(gyro.getAngle() - degree) > 2 && isAutonomous()) {
+      System.out.println(gyro.getAngle());
       if (degree > 0) {
-        driveTrain.tankDrive(-.5, .5);
+        System.out.println("Right" + degree);
+        driveTrain.tankDrive(-.75, .75);
+        
       }
       if (degree < 0 ) {
-        driveTrain.tankDrive(.5, -.5);
+        System.out.println("Left" + degree);
+        driveTrain.tankDrive(.75, -.75);
       }
     }
+    driveTrain.stopMotor();
   }
 
   /**
@@ -368,6 +379,8 @@ public class Robot extends TimedRobot {
     // autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     // System.out.println("Auto selected: " + autoSelected);
 
+
+    //These are the rotation angles used for shooting into the lower hub based on whichever ball we are collecting.
     switch(autoCargo) {
       case(wallCargo): {
         autoFetchRotate = 0;
@@ -402,12 +415,12 @@ public class Robot extends TimedRobot {
           case(fetchFirst): { //If we choose to fetch the cargo first
             ActivateIntake();
             ActivateConveyor();
-            autoMove(2, -1);
-            deactivateIntakeMotor();
-            autoMove(3.5, 1);
+            autoMove(2.5, -.5);
+            // deactivateIntakeMotor();
+            RetractIntake();
+            autoMove(4, .5);
             autoRotate(autoFetchRotate);
             lowShooterSpeed();
-            autoPause(2);
             ReleaseCargo();
             while(isAutonomous());
           }
@@ -416,7 +429,7 @@ public class Robot extends TimedRobot {
           case(depositFirst): { //If we choose to deposit the cargo first
             lowShooterSpeed();
             ActivateConveyor();
-            autoMove(1,.7);
+            autoMove(1,.5);
             autoRotate(autoDepositRotate);
             ReleaseCargo();
             autoPause(2);
@@ -424,7 +437,7 @@ public class Robot extends TimedRobot {
             DeactivateShooterMotor();
             autoRotate(-autoDepositRotate);
             ActivateIntake();
-            autoMove(3.5, -1);
+            autoMove(3.5, -.5);
             while (isAutonomous());
           }
           break;
@@ -466,7 +479,17 @@ public class Robot extends TimedRobot {
 
   /** This function is called once when teleop is enabled. */
   @Override
-  public void teleopInit() {}
+  public void teleopInit() {
+//These commands set everything off/default for when control is transfered to human players
+DeactivateConveyor();
+DeactivateShooterMotor();
+StopCargo();
+ReturnClimber();
+isClimberActivated = false;
+isDriveTrainInverted = false;
+
+
+  }
 
   /** This function is called periodically during operator control. */
   @Override
@@ -491,7 +514,7 @@ public class Robot extends TimedRobot {
     else {
       RetractIntake();
     }
-    if (Timer.getFPGATimestamp() > intakeTimer + 3){
+    if (Timer.getFPGATimestamp() > intakeTimer + 1.5){
       deactivateIntakeMotor();
     }
       
