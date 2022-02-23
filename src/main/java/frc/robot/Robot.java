@@ -21,7 +21,7 @@
  * 2/21/22 CF: Changed intake motor deactivation delay to one and a half second
  * 2/21/22 CF: changed turn values for auto routine to .75 speed
  * 2/22/22 JMF: Fixed method names and cleaned up white space
- * 
+ * 2/23/22 BAC: Removed old conveyer and shooter logic that had been commented out
  * 
  * 
  */
@@ -90,11 +90,7 @@ public class Robot extends TimedRobot {
   private JoystickButton gyroResetButton = new JoystickButton(leftDriverController, 10);
 
   // Co-driver buttons
-  //private JoystickButton higherShootingSpeedButton = new JoystickButton(coDriverController, 7);
-  //private JoystickButton shooterOffButton = new JoystickButton(coDriverController, 9);
-  //private JoystickButton lowerShootingSpeedButton = new JoystickButton(coDriverController, 11);
   private JoystickButton conveyorForwardButton = new JoystickButton(coDriverController, 8);
-  // private JoystickButton conveyorStopButton = new JoystickButton(coDriverController, 10);
   private JoystickButton conveyorReverseButton = new JoystickButton(coDriverController, 12);
   private JoystickButton climberTiltButton = new JoystickButton(coDriverController, 5);
   private JoystickButton climberReturnButton = new JoystickButton(coDriverController, 3);
@@ -398,9 +394,7 @@ public class Robot extends TimedRobot {
         // does nothing
       }
     }
-
-
-    }
+  }
 
   /** This function is called periodically during autonomous. */
   @Override
@@ -491,7 +485,6 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     
-
     // calls earlier method for updating toggle values
     updateButtonValues();
 
@@ -519,18 +512,6 @@ public class Robot extends TimedRobot {
       gyro.zeroYaw();
     }
 
-    /* // checks if shooter speed buttons are pressed or off button is pressed then calls corresponding method
-    if (shooterOffButton.get()) {
-      deactivateShooterMotor();
-    }
-    else if (higherShootingSpeedButton.get()) {
-      highShooterSpeed();
-    }
-    else if (lowerShootingSpeedButton.get()) {
-      lowShooterSpeed();
-    } */
-
-
     // checks if conveyer should be running in a direction or be shut off then runs corresponding method
     if (conveyorForwardButton.get() || intakeValue || (!shooterValue.equals("OFF"))) {
       activateConveyor();
@@ -542,19 +523,6 @@ public class Robot extends TimedRobot {
       deactivateConveyor();
     }
 
-
-    /* // checks if conveyor should be running in a direction or be shut off then runs corresponding method
-    if (conveyorStopButton.get()) {
-      deactivateConveyor();
-    }
-    else if (conveyorForwardButton.get()) {
-      activateConveyor();
-    }
-    else if (conveyorReverseButton.get()) {
-      reverseConveyor();
-    }
- */
-
     // checks if climber should be tilted or returned then runs corresponding method
     if (climberTiltButton.get()) {
       tiltClimber();
@@ -562,7 +530,6 @@ public class Robot extends TimedRobot {
     else if (climberReturnButton.get()) {
       returnClimber();
     }
-
 
     // checks if cargo should be released at low or high speed and runs corresponding methods
     if (lowCargoReleaseButton.get()) {
