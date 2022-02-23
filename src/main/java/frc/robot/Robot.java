@@ -12,7 +12,7 @@
  * 2/18/22 BAC: Added Change Log
  * 2/18/22 JMF: Fixed autonomous by adding missing functions and changed gyro directions
  * 2/19/22 JMF: Changed solenoid IO location, fixed autonomous direction for leaveTarmac and solenoid values, 
- * renamed every variable to be more uniformed, and adjusted conveyor speed.
+ * 2/19/22 JMF: Renamed every variable to be more uniformed, and adjusted conveyor speed.
  * 2/19/22 CF: Modified autonomous values and added heading maitnence system.
  * 2/20/22 BAC: New conveyer logic, associated with intake,shooting or button press
  * 2/20/22 BAC: New low/high cargo release buttons to automate shooter motor; cleaned up indenting/spacing
@@ -20,7 +20,7 @@
  * 2/21/22 CF: Swapped Double Solenoids for climber tilt
  * 2/21/22 CF: Changed intake motor deactivation delay to one and a half second
  * 2/21/22 CF: changed turn values for auto routine to .75 speed
- * 
+ * 2/22/22 JMF: Fixed method names and cleaned up white space
  * 
  * 
  * 
@@ -64,7 +64,6 @@ import edu.wpi.first.cameraserver.CameraServer;
 // timer import
 import edu.wpi.first.wpilibj.Timer;
 
-
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
  * each mode, as described in the TimedRobot documentation. If you change the name of this class or
@@ -104,7 +103,6 @@ public class Robot extends TimedRobot {
   private JoystickButton lowCargoReleaseButton = new JoystickButton(coDriverController, 1);
   private JoystickButton highCargoReleaseButton = new JoystickButton(coDriverController, 2);
 
-
   // Creates double solenoids for future reference
   private DoubleSolenoid intakeSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2, 3);
   private DoubleSolenoid cargoReleaseSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 4, 5);
@@ -122,7 +120,6 @@ public class Robot extends TimedRobot {
   private final Timer autoTimer = new Timer();
 
   private double intakeTimer;
-
 
   // values for which auto routine we are using used when we pull which selector we have choosen
   private String autoSelected;
@@ -180,23 +177,23 @@ public class Robot extends TimedRobot {
   }
 
   // Methods for the Conveyor
-  public void ActivateConveyor() {
+  public void activateConveyor() {
     conveyorMotor.set(0.8);
     conveyorValue = true;
   }
 
-  public void DeactivateConveyor() {
+  public void deactivateConveyor() {
     conveyorMotor.set(0);
     conveyorValue = false;
   }
 
-  public void ReverseConveyor() {
+  public void reverseConveyor() {
     conveyorMotor.set(-0.5);
     conveyorValue = true;
   } 
 
-
-  public void DeactivateShooterMotor() {
+  // shooter methods
+  public void deactivateShooterMotor() {
     shooterMotor.set(0);
     shooterValue = "OFF";
   }
@@ -212,34 +209,34 @@ public class Robot extends TimedRobot {
   }
 
   // Methods for the Climber
-  public void TiltClimber() {
+  public void tiltClimber() {
     climberSolenoid.set(Value.kReverse);
     climberTiltValue = true;
   }
 
-  public void ReturnClimber() {
+  public void returnClimber() {
     climberSolenoid.set(Value.kForward);
     climberTiltValue = false;
   }
 
   // Methods for the Cargo
-  public void ReleaseCargo() {
+  public void releaseCargo() {
     cargoReleaseSolenoid.set(Value.kReverse);
   }
 
-  public void StopCargo() {
+  public void stopCargo() {
     cargoReleaseSolenoid.set(Value.kForward);
   }
 
   // Methods for Intake
-  public void ActivateIntake() {
+  public void activateIntake() {
     intakeMotor.set(0.5);
     intakeSolenoid.set(Value.kForward);
     intakeValue = true;
     intakeTimer = Timer.getFPGATimestamp();
   }
 
-  public void RetractIntake() {
+  public void retractIntake() {
     intakeSolenoid.set(Value.kReverse);
   }
 
@@ -321,9 +318,9 @@ public class Robot extends TimedRobot {
     driveTrain = new DifferentialDrive(leftMotor, rightMotor);
 
     //makes sure that cargo stopper and climber are in starting position
-    ReturnClimber();
-    StopCargo();
-    RetractIntake();
+    returnClimber();
+    stopCargo();
+    retractIntake();
 
     // starts camera
     CameraServer.startAutomaticCapture();
@@ -415,30 +412,30 @@ public class Robot extends TimedRobot {
         //Routine For if we choose to get cargo
         switch(autoOrder) {
           case(fetchFirst): { //If we choose to fetch the cargo first
-            ActivateIntake();
-            ActivateConveyor();
+            activateIntake();
+            activateConveyor();
             autoMove(2.5, -.5);
             // deactivateIntakeMotor();
-            RetractIntake();
+            retractIntake();
             autoMove(4, .5);
             autoRotate(autoFetchRotate);
             lowShooterSpeed();
-            ReleaseCargo();
+            releaseCargo();
             while(isAutonomous());
           }
           break;
 
           case(depositFirst): { //If we choose to deposit the cargo first
             lowShooterSpeed();
-            ActivateConveyor();
+            activateConveyor();
             autoMove(1,.5);
             autoRotate(autoDepositRotate);
-            ReleaseCargo();
+            releaseCargo();
             autoPause(2);
-            StopCargo();
-            DeactivateShooterMotor();
+            stopCargo();
+            deactivateShooterMotor();
             autoRotate(-autoDepositRotate);
-            ActivateIntake();
+            activateIntake();
             autoMove(3.5, -.5);
             while (isAutonomous());
           }
@@ -463,11 +460,11 @@ public class Robot extends TimedRobot {
 
       case depositCargoleave: { //If we choose to deposit the cargo and then leave the Tarmac
         lowShooterSpeed();
-        ActivateConveyor();
+        activateConveyor();
         autoPause(2);
-        ReleaseCargo();
+        releaseCargo();
         autoPause(2);
-        DeactivateShooterMotor();
+        deactivateShooterMotor();
         autoMove(3, -.7);
         while(isAutonomous());
         }
@@ -482,14 +479,14 @@ public class Robot extends TimedRobot {
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {
-//These commands set everything off/default for when control is transfered to human players
-DeactivateConveyor();
-DeactivateShooterMotor();
-StopCargo();
-ReturnClimber();
-isClimberActivated = false;
-isDriveTrainInverted = false;
-
+    
+    //These commands set everything off/default for when control is transfered to human players
+    deactivateConveyor();
+    deactivateShooterMotor();
+    stopCargo();
+    returnClimber();
+    isClimberActivated = false;
+    isDriveTrainInverted = false;
 
   }
 
@@ -511,10 +508,10 @@ isDriveTrainInverted = false;
 
     // checks if intake should be on then runs corresponding method
     if (intakeButton.get()) {
-      ActivateIntake();
+      activateIntake();
     }
     else {
-      RetractIntake();
+      retractIntake();
     }
     if (Timer.getFPGATimestamp() > intakeTimer + 1.5){
       deactivateIntakeMotor();
@@ -527,7 +524,7 @@ isDriveTrainInverted = false;
 
     /* // checks if shooter speed buttons are pressed or off button is pressed then calls corresponding method
     if (shooterOffButton.get()) {
-      DeactivateShooterMotor();
+      deactivateShooterMotor();
     }
     else if (higherShootingSpeedButton.get()) {
       highShooterSpeed();
@@ -539,49 +536,49 @@ isDriveTrainInverted = false;
 
     // checks if conveyer should be running in a direction or be shut off then runs corresponding method
     if (conveyorForwardButton.get() || intakeValue || (!shooterValue.equals("OFF"))) {
-      ActivateConveyor();
+      activateConveyor();
     }
     else if (conveyorReverseButton.get()) {
-      ReverseConveyor();
+      reverseConveyor();
     }
     else {
-      DeactivateConveyor();
+      deactivateConveyor();
     }
 
 
     /* // checks if conveyor should be running in a direction or be shut off then runs corresponding method
     if (conveyorStopButton.get()) {
-      DeactivateConveyor();
+      deactivateConveyor();
     }
     else if (conveyorForwardButton.get()) {
-      ActivateConveyor();
+      activateConveyor();
     }
     else if (conveyorReverseButton.get()) {
-      ReverseConveyor();
+      reverseConveyor();
     }
  */
 
     // checks if climber should be tilted or returned then runs corresponding method
     if (climberTiltButton.get()) {
-      TiltClimber();
+      tiltClimber();
     }
     else if (climberReturnButton.get()) {
-      ReturnClimber();
+      returnClimber();
     }
 
 
     // checks if cargo should be released at low or high speed and runs corresponding methods
     if (lowCargoReleaseButton.get()) {
       lowShooterSpeed();
-      ReleaseCargo();
+      releaseCargo();
     }
     else if (highCargoReleaseButton.get()) {
       highShooterSpeed();
-      ReleaseCargo();
+      releaseCargo();
     }
     else {
-      StopCargo();
-      DeactivateShooterMotor();
+      stopCargo();
+      deactivateShooterMotor();
     }
 
 
