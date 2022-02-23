@@ -339,6 +339,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
 
+    //puts values from code onto smart dashboard
     SmartDashboard.putBoolean("Connection Status", gyro.isConnected());
     SmartDashboard.putBoolean("Calibration Status", gyro.isCalibrating());
     SmartDashboard.putNumber("Gyro Angle", gyro.getYaw());
@@ -350,7 +351,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putBoolean("Conveyor Value", conveyorValue);
     SmartDashboard.putBoolean("Intake Value", intakeValue);
     SmartDashboard.putString("Shooter Value", shooterValue);
-    
+    //updates vales for smart dashboard
     SmartDashboard.updateValues();
   }
 
@@ -449,18 +450,15 @@ public class Robot extends TimedRobot {
           }
         }
       }
-
       case leaveTarmac: { //If we choose to simply leave the Tarmac
         autoMove(2, -0.5);
         while(isAutonomous());
         }
       break;
-      
       case Nothing: {      
         while(isAutonomous());
         }
         break;
-
       case depositCargoleave: { //If we choose to deposit the cargo and then leave the Tarmac
         lowShooterSpeed();
         ActivateConveyor();
@@ -472,7 +470,6 @@ public class Robot extends TimedRobot {
         while(isAutonomous());
         }
         break;
-
       case test: { //used for testing functions during autonomous periodic
         }
         break;
@@ -489,8 +486,6 @@ StopCargo();
 ReturnClimber();
 isClimberActivated = false;
 isDriveTrainInverted = false;
-
-
   }
 
   /** This function is called periodically during operator control. */
