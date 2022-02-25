@@ -22,7 +22,7 @@
  * 2/21/22 CF: changed turn values for auto routine to .75 speed
  * 2/22/22 JMF: Fixed method names and cleaned up white space
  * 2/23/22 BAC: Removed old conveyer and shooter logic that had been commented out
- * 
+ * 2/24/22 JMF: Inverted the extension motor in order to help with muscle memory
  * 
  */
 
@@ -148,7 +148,7 @@ public class Robot extends TimedRobot {
   // creates other motor controllers
   private VictorSP intakeMotor = new VictorSP(4);
   private VictorSP conveyorMotor = new VictorSP(6);
-  private Spark climberExtension = new Spark(7);
+  private Spark climberMotor = new Spark(7);
   private CANSparkMax shooterMotor = new CANSparkMax(28, MotorType.kBrushless);
 
   // creates gyro object for navx board
@@ -288,6 +288,7 @@ public class Robot extends TimedRobot {
 
     conveyorMotor.setInverted(true);
     shooterMotor.setInverted(true);
+    climberMotor.setInverted(true);
 
     // creates chooser options and displays for primary routines
     routines.addOption("Test", test);
@@ -548,7 +549,7 @@ public class Robot extends TimedRobot {
 
     // checks if climber is activated then takes y value as speed motor should be run
     if (isClimberActivated == true) {
-      climberExtension.set(coDriverController.getY());
+      climberMotor.set(coDriverController.getY());
     }
   }
 
