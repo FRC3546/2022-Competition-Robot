@@ -23,16 +23,12 @@
  * 2/23/22 BAC: Removed old conveyer and shooter logic that had been commented out
  * 2/24/22 JMF: Inverted the extension motor in order to help with muscle memory
  * 2/24/22 JMF/CF: Added safety system that would stop the robot from using the shooter or intake while climbing
- * 2/27/22 JMF: Increased intake speed
- * 2/28/22 CF: When safety is activated the climb motors will stop rather than continue
  * 2/26/22 CF: Increased the time that robot moves back in autonomous to escape tarmac
  * 2/26/22 CF: Increased the turn speed
+ * 2/28/22 CF: When safety is activated the climb motors will stop rather than continue
  * 2/28/22 CF: Increased High Shooter speed to .9
- * 
- * 
- * 
- * 
- * 
+ * 3/1/22 JMF: Increased intake speed
+ * 3/1/22 JMF: Changed the button layout for the tilting and returning the climber
  */
 
 
@@ -101,8 +97,8 @@ public class Robot extends TimedRobot {
   // Co-driver buttons
   private JoystickButton conveyorForwardButton = new JoystickButton(coDriverController, 8);
   private JoystickButton conveyorReverseButton = new JoystickButton(coDriverController, 12);
-  private JoystickButton climberTiltButton = new JoystickButton(coDriverController, 5);
-  private JoystickButton climberReturnButton = new JoystickButton(coDriverController, 3);
+  private JoystickButton climberTiltButton = new JoystickButton(coDriverController, 11);
+  private JoystickButton climberReturnButton = new JoystickButton(coDriverController, 7);
   private JoystickButton climberActivationButton = new JoystickButton(coDriverController, 6);
   private JoystickButton climberDeactivationButton = new JoystickButton(coDriverController, 4);
   private JoystickButton lowCargoReleaseButton = new JoystickButton(coDriverController, 1);
@@ -294,7 +290,6 @@ public class Robot extends TimedRobot {
     // inverts both sides of the drivetrain(forward on controllers is negative y values)
     leftMotor.setInverted(true);
     rightMotor.setInverted(true);
-
     conveyorMotor.setInverted(true);
     shooterMotor.setInverted(true);
     climberMotor.setInverted(true);
