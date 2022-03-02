@@ -1,4 +1,3 @@
-
 // Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
@@ -23,7 +22,8 @@
  * 2/22/22 JMF: Fixed method names and cleaned up white space
  * 2/23/22 BAC: Removed old conveyer and shooter logic that had been commented out
  * 2/24/22 JMF: Inverted the extension motor in order to help with muscle memory
- * 
+ * 2/24/22 JMF/CF: Added safety system that would stop the robot from using the shooter or intake while climbing
+ * 2/27/22 JMF: Increased intake speed
  */
 
 
@@ -226,7 +226,7 @@ public class Robot extends TimedRobot {
 
   // Methods for Intake
   public void activateIntake() {
-    intakeMotor.set(0.5);
+    intakeMotor.set(0.6);
     intakeSolenoid.set(Value.kForward);
     intakeValue = true;
     intakeTimer = Timer.getFPGATimestamp();
@@ -252,7 +252,7 @@ public class Robot extends TimedRobot {
     double autoForwardStart = Timer.getFPGATimestamp();
     while (Timer.getFPGATimestamp() < (autoForwardStart + time) && isAutonomous()) {
       // error = autoHeading - gyro.getAngle();
-      driveTrain.tankDrive(-1 * speed,-1 * speed);
+      driveTrain.tankDrive(-1 * speed, -1 * speed);
     }
     driveTrain.stopMotor();
   }
@@ -345,6 +345,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putBoolean("Conveyor Value", conveyorValue);
     SmartDashboard.putBoolean("Intake Value", intakeValue);
     SmartDashboard.putString("Shooter Value", shooterValue);
+    
     //updates vales for smart dashboard
     SmartDashboard.updateValues();
   }
@@ -498,7 +499,7 @@ public class Robot extends TimedRobot {
     }
 
     // checks if intake should be on then runs corresponding method
-    if (intakeButton.get()) {
+    if (intakeButton.get() && isClimberActivated == false) {
       activateIntake();
     }
     else {
@@ -533,11 +534,11 @@ public class Robot extends TimedRobot {
     }
 
     // checks if cargo should be released at low or high speed and runs corresponding methods
-    if (lowCargoReleaseButton.get()) {
+    if (lowCargoReleaseButton.get() && isClimberActivated == false) {
       lowShooterSpeed();
       releaseCargo();
     }
-    else if (highCargoReleaseButton.get()) {
+    else if (highCargoReleaseButton.get() && isClimberActivated == false) {
       highShooterSpeed();
       releaseCargo();
     }
