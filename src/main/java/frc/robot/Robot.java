@@ -24,6 +24,15 @@
  * 2/24/22 JMF: Inverted the extension motor in order to help with muscle memory
  * 2/24/22 JMF/CF: Added safety system that would stop the robot from using the shooter or intake while climbing
  * 2/27/22 JMF: Increased intake speed
+ * 2/28/22 CF: When safety is activated the climb motors will stop rather than continue
+ * 2/26/22 CF: Increased the time that robot moves back in autonomous to escape tarmac
+ * 2/26/22 CF: Increased the turn speed
+ * 2/28/22 CF: Increased High Shooter speed to .9
+ * 
+ * 
+ * 
+ * 
+ * 
  */
 
 
@@ -200,7 +209,7 @@ public class Robot extends TimedRobot {
   }
 
   public void highShooterSpeed() {
-    shooterMotor.set(0.8);
+    shooterMotor.set(0.9);
     shooterValue = "HIGH SPEED";
   }
 
@@ -260,16 +269,16 @@ public class Robot extends TimedRobot {
   public void autoRotate(int degree) {
     gyro.zeroYaw();
 
-    while (Math.abs(gyro.getAngle() - degree) > 2 && isAutonomous()) {
+    while (Math.abs(gyro.getAngle() - degree) > .5 && isAutonomous()) {
       System.out.println(gyro.getAngle());
       if (degree > 0) {
         System.out.println("Right" + degree);
-        driveTrain.tankDrive(-.75, .75);
+        driveTrain.tankDrive(-.85, .85);
         
       }
       if (degree < 0 ) {
         System.out.println("Left" + degree);
-        driveTrain.tankDrive(.75, -.75);
+        driveTrain.tankDrive(.85, -.85);
       }
     }
     driveTrain.stopMotor();
@@ -306,7 +315,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putData("Cargo Options", cargoChooser);
 
     // creates chooser options and displays for order
-    order.addOption("Deposit Ball The Fetch and Deposit Other", depositFirst);
+    order.addOption("Deposit Ball then Fetch Other", depositFirst);
     order.addOption("Fetch then Deposit both", fetchFirst);
     order.setDefaultOption("Do nothing", Nothing);
     SmartDashboard.putData("Order for Get Cargo", order);
@@ -389,8 +398,8 @@ public class Robot extends TimedRobot {
         autoDepositRotate = -35;
       }
       case(hangarCargo): {
-        autoFetchRotate = -15;
-        autoDepositRotate = -15;
+        autoFetchRotate = 15;
+        autoDepositRotate = 15;
       }
       case(Nothing): {
         // does nothing
@@ -411,10 +420,10 @@ public class Robot extends TimedRobot {
           case(fetchFirst): { //If we choose to fetch the cargo first
             activateIntake();
             activateConveyor();
-            autoMove(2.5, -.5);
+            autoMove(3.5, -.5);
             // deactivateIntakeMotor();
             retractIntake();
-            autoMove(4, .5);
+            autoMove(5, .5);
             autoRotate(autoFetchRotate);
             lowShooterSpeed();
             releaseCargo();
@@ -425,7 +434,7 @@ public class Robot extends TimedRobot {
           case(depositFirst): { //If we choose to deposit the cargo first
             lowShooterSpeed();
             activateConveyor();
-            autoMove(1,.5);
+            autoMove(2,.5);
             autoRotate(autoDepositRotate);
             releaseCargo();
             autoPause(2);
@@ -433,7 +442,10 @@ public class Robot extends TimedRobot {
             deactivateShooterMotor();
             autoRotate(-autoDepositRotate);
             activateIntake();
-            autoMove(3.5, -.5);
+            autoMove(3, -.6);
+            retractIntake();
+            autoPause(1.5);
+            deactivateIntakeMotor();
             while (isAutonomous());
           }
           break;
@@ -551,6 +563,9 @@ public class Robot extends TimedRobot {
     // checks if climber is activated then takes y value as speed motor should be run
     if (isClimberActivated == true) {
       climberMotor.set(coDriverController.getY());
+    }
+    else{
+      climberMotor.stopMotor();
     }
   }
 
