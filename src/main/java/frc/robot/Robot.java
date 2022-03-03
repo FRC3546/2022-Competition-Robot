@@ -29,6 +29,14 @@
  * 2/28/22 CF: Increased High Shooter speed to .9
  * 3/1/22 JMF: Increased intake speed
  * 3/1/22 JMF: Changed the button layout for the tilting and returning the climber
+ * 3/3/22 CF: Will immediately leave all auto loops if within last three seconds of auto period
+ * 3/3/22 CF: Decreased speed it reverses at during deposit first 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
  */
 
 
@@ -248,14 +256,14 @@ public class Robot extends TimedRobot {
 
   public void autoPause(double time) {
     double pauseStart = Timer.getFPGATimestamp();
-    while (Timer.getFPGATimestamp() <= (pauseStart + time) && isAutonomous());
+    while (Timer.getFPGATimestamp() <= (pauseStart + time) && isAutonomous() && Timer.getMatchTime() < 13);
   }
 
   public void autoMove(double time, double speed) {
     // double autoHeading = gyro.getAngle();
     // double error;
     double autoForwardStart = Timer.getFPGATimestamp();
-    while (Timer.getFPGATimestamp() < (autoForwardStart + time) && isAutonomous()) {
+    while (Timer.getFPGATimestamp() < (autoForwardStart + time) && isAutonomous() && Timer.getMatchTime() < 13) {
       // error = autoHeading - gyro.getAngle();
       driveTrain.tankDrive(-1 * speed, -1 * speed);
     }
@@ -265,7 +273,7 @@ public class Robot extends TimedRobot {
   public void autoRotate(int degree) {
     gyro.zeroYaw();
 
-    while (Math.abs(gyro.getAngle() - degree) > .5 && isAutonomous()) {
+    while (Math.abs(gyro.getAngle() - degree) > .5 && isAutonomous() && Timer.getMatchTime() < 13) {
       System.out.println(gyro.getAngle());
       if (degree > 0) {
         System.out.println("Right" + degree);
@@ -466,7 +474,7 @@ public class Robot extends TimedRobot {
         releaseCargo();
         autoPause(2);
         deactivateShooterMotor();
-        autoMove(3, -.7);
+        autoMove(3, -.5);
         while(isAutonomous());
         }
         break;
