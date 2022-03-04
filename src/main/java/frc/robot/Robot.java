@@ -256,14 +256,14 @@ public class Robot extends TimedRobot {
 
   public void autoPause(double time) {
     double pauseStart = Timer.getFPGATimestamp();
-    while (Timer.getFPGATimestamp() <= (pauseStart + time) && isAutonomous() && Timer.getMatchTime() < 13);
+    while (Timer.getFPGATimestamp() <= (pauseStart + time) && isAutonomous() && autoTimer.get() < 13);
   }
 
   public void autoMove(double time, double speed) {
     // double autoHeading = gyro.getAngle();
     // double error;
     double autoForwardStart = Timer.getFPGATimestamp();
-    while (Timer.getFPGATimestamp() < (autoForwardStart + time) && isAutonomous() && Timer.getMatchTime() < 13) {
+    while (Timer.getFPGATimestamp() < (autoForwardStart + time) && isAutonomous() && autoTimer.get() < 13) {
       // error = autoHeading - gyro.getAngle();
       driveTrain.tankDrive(-1 * speed, -1 * speed);
     }
@@ -273,7 +273,7 @@ public class Robot extends TimedRobot {
   public void autoRotate(int degree) {
     gyro.zeroYaw();
 
-    while (Math.abs(gyro.getAngle() - degree) > .5 && isAutonomous() && Timer.getMatchTime() < 13) {
+    while (Math.abs(gyro.getAngle() - degree) > .5 && isAutonomous() && autoTimer.get() < 13) {
       System.out.println(gyro.getAngle());
       if (degree > 0) {
         System.out.println("Right" + degree);
@@ -395,18 +395,25 @@ public class Robot extends TimedRobot {
       case(wallCargo): {
         autoFetchRotate = 0;
         autoDepositRotate = 0;
-      }
+      } 
+      break;
+
       case(terminalCargo): {
         autoFetchRotate = -35;
         autoDepositRotate = -35;
-      }
+      } 
+      break;
+
       case(hangarCargo): {
-        autoFetchRotate = 15;
-        autoDepositRotate = 15;
-      }
+        autoFetchRotate = -15;
+        autoDepositRotate = -15;
+      } 
+      break;
+
       case(Nothing): {
         // does nothing
-      }
+      } 
+      break;
     }
   }
 
