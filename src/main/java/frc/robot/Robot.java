@@ -161,7 +161,7 @@ public class Robot extends TimedRobot {
   // creates other motor controllers
   private VictorSP intakeMotor = new VictorSP(4);
   private VictorSP conveyorMotor = new VictorSP(6);
-  private Spark climberMotor = new Spark(7);
+  private Spark climberMotor = new Spark(8);
   private CANSparkMax shooterMotor = new CANSparkMax(28, MotorType.kBrushless);
 
   // creates gyro object for navx board
