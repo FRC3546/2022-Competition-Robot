@@ -395,18 +395,25 @@ public class Robot extends TimedRobot {
       case(wallCargo): {
         autoFetchRotate = 0;
         autoDepositRotate = 0;
-      }
+      } 
+      break;
+      
       case(terminalCargo): {
         autoFetchRotate = -35;
         autoDepositRotate = -35;
-      }
+      } 
+      break;
+
       case(hangarCargo): {
         autoFetchRotate = 15;
         autoDepositRotate = 15;
-      }
+      } 
+      break;
+
       case(Nothing): {
         // does nothing
-      }
+      } 
+      break;
     }
   }
 
