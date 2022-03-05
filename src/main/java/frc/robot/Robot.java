@@ -273,7 +273,7 @@ public class Robot extends TimedRobot {
   public void autoRotate(int degree) {
     gyro.zeroYaw();
 
-    while (Math.abs(gyro.getAngle() - degree) > .5 && isAutonomous() && autoTimer.get() < 13) {
+    while (Math.abs(gyro.getYaw() - degree) > .5 && isAutonomous() && autoTimer.get() < 13) {
       System.out.println(gyro.getAngle());
       if (degree > 0) {
         System.out.println("Right" + degree);
@@ -450,7 +450,10 @@ public class Robot extends TimedRobot {
             autoPause(2);
             stopCargo();
             deactivateShooterMotor();
-            autoRotate(-autoDepositRotate);
+            if (autoDepositRotate < 0){
+            autoRotate(-autoDepositRotate + 3);}
+            else if (autoDepositRotate > 0){
+            autoRotate(-autoDepositRotate - 3);}
             activateIntake();
             autoMove(3, -.6);
             retractIntake();
