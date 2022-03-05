@@ -273,7 +273,7 @@ public class Robot extends TimedRobot {
   public void autoRotate(int degree) {
     gyro.zeroYaw();
 
-    while (Math.abs(gyro.getYaw() - degree) > .5 && isAutonomous() && autoTimer.get() < 13) {
+    while (Math.abs(gyro.getYaw() - degree) > 1 && isAutonomous() && autoTimer.get() < 13) {
       System.out.println(gyro.getAngle());
       if (degree > 0) {
         System.out.println("Right" + degree);
@@ -397,6 +397,7 @@ public class Robot extends TimedRobot {
         autoDepositRotate = 0;
       } 
       break;
+
       case(terminalCargo): {
         autoFetchRotate = -35;
         autoDepositRotate = -35;
@@ -404,8 +405,8 @@ public class Robot extends TimedRobot {
       break;
 
       case(hangarCargo): {
-        autoFetchRotate = -15;
-        autoDepositRotate = -15;
+        autoFetchRotate = 0;//changed from -15
+        autoDepositRotate = 0;
       } 
       break;
 
@@ -429,10 +430,10 @@ public class Robot extends TimedRobot {
           case(fetchFirst): { //If we choose to fetch the cargo first
             activateIntake();
             activateConveyor();
-            autoMove(3.5, -.5);
+            autoMove(1.75, -.7);//was 3.5, -.5
             // deactivateIntakeMotor();
             retractIntake();
-            autoMove(5, .5);
+            autoMove(2.1, .7);//was 5, .5
             autoRotate(autoFetchRotate);
             lowShooterSpeed();
             releaseCargo();
@@ -443,7 +444,7 @@ public class Robot extends TimedRobot {
           case(depositFirst): { //If we choose to deposit the cargo first
             lowShooterSpeed();
             activateConveyor();
-            autoMove(2,.5);
+            autoMove(1,.7);// was 2, .5
             autoRotate(autoDepositRotate);
             releaseCargo();
             autoPause(2);
@@ -454,7 +455,7 @@ public class Robot extends TimedRobot {
             else if (autoDepositRotate > 0){
             autoRotate(-autoDepositRotate - 3);}
             activateIntake();
-            autoMove(3, -.6);
+            autoMove(1.5, -.7);//was 3, -.6
             retractIntake();
             autoPause(1.5);
             deactivateIntakeMotor();
@@ -468,7 +469,7 @@ public class Robot extends TimedRobot {
         }
       }
       case leaveTarmac: { //If we choose to simply leave the Tarmac
-        autoMove(2, -0.5);
+        autoMove(1.5, -0.7);//was 2, -.5
         while(isAutonomous());
         }
       break;
@@ -483,7 +484,7 @@ public class Robot extends TimedRobot {
         releaseCargo();
         autoPause(2);
         deactivateShooterMotor();
-        autoMove(3, -.5);
+        autoMove(2, -.7);//was 3, -.5
         while(isAutonomous());
         }
         break;
@@ -529,7 +530,7 @@ public class Robot extends TimedRobot {
     else {
       retractIntake();
     }
-    if (Timer.getFPGATimestamp() > intakeTimer + 1.5){
+    if (Timer.getFPGATimestamp() > intakeTimer + 2){//increased intake time from 1.5
       deactivateIntakeMotor();
     }
       
