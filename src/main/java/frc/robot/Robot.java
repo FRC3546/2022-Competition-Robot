@@ -376,6 +376,8 @@ public class Robot extends TimedRobot {
    //autonomous vairables
   int autoDepositRotate;
   int autoFetchRotate;
+  double reverseTime;
+  double forwardTime;
 
   @Override
   public void autonomousInit() {
@@ -395,18 +397,24 @@ public class Robot extends TimedRobot {
       case(wallCargo): {
         autoFetchRotate = 0;
         autoDepositRotate = 0;
+        reverseTime = 1.5;
+        forwardTime = 2.1;
       } 
       break;
 
       case(terminalCargo): {
         autoFetchRotate = -35;
         autoDepositRotate = -35;
+        reverseTime = 1.75;
+        forwardTime = 2.1;
       } 
       break;
 
       case(hangarCargo): {
         autoFetchRotate = 0;//changed from -15
         autoDepositRotate = 0;
+        reverseTime = 1.75;
+        forwardTime = 2.1;
       } 
       break;
 
@@ -430,10 +438,10 @@ public class Robot extends TimedRobot {
           case(fetchFirst): { //If we choose to fetch the cargo first
             activateIntake();
             activateConveyor();
-            autoMove(1.75, -.7);//was 3.5, -.5
+            autoMove(reverseTime, -.7);//was 3.5, -.5
             // deactivateIntakeMotor();
             retractIntake();
-            autoMove(2.1, .7);//was 5, .5
+            autoMove(forwardTime, .7);//was 5, .5
             autoRotate(autoFetchRotate);
             lowShooterSpeed();
             releaseCargo();
