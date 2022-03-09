@@ -37,6 +37,7 @@
  * 
  * 
  * 
+ * 
  */
 
 
@@ -137,10 +138,12 @@ public class Robot extends TimedRobot {
 
   // chooser for primary routine(defaults as doing nothing)
   private static final String test = "test";
-  private static final String depositCargoleave = "Deposit Cargo then Leave";
-  private static final String getCargo = "Get the Cargo";
+  private static final String getCargo = "Collect Cargo";
   private static final String leaveTarmac = "Leave Tarmac";
   private static final String Nothing = "Do Nothing";
+  private static final String depositCargoleave = "Deposit Cargo then Taxi";
+  private static final String depositFirst = "Deposit First";
+  private static final String fetchFirst = "Fetch Ball First"; 
   private final SendableChooser<String> routines = new SendableChooser<>();
   
   // chooser get cargo(determines which cargo we are going for from set positions)
@@ -149,11 +152,6 @@ public class Robot extends TimedRobot {
   private static final String hangarCargo = "Hanger Cargo";
   private final SendableChooser<String> cargoChooser = new SendableChooser<>();
 
-  // chooser for order(if we get cargo)
-  private static final String depositFirst = "Deposit First";
-  private static final String fetchFirst = "Fetch Ball First";
-  private final SendableChooser<String> order = new SendableChooser<>();
-
   // creates drive train victorSP motor controllers
   private VictorSP leftMotor = new VictorSP(0);
   private VictorSP rightMotor = new VictorSP(2);
@@ -161,7 +159,7 @@ public class Robot extends TimedRobot {
   // creates other motor controllers
   private VictorSP intakeMotor = new VictorSP(4);
   private VictorSP conveyorMotor = new VictorSP(6);
-  private Spark climberMotor = new Spark(8);
+  private Spark climberMotor = new Spark(7);
   private CANSparkMax shooterMotor = new CANSparkMax(28, MotorType.kBrushless);
 
   // creates gyro object for navx board
@@ -273,7 +271,7 @@ public class Robot extends TimedRobot {
   public void autoRotate(int degree) {
     gyro.zeroYaw();
 
-    while (Math.abs(gyro.getYaw() - degree) > 1 && isAutonomous() && autoTimer.get() < 13) {
+    while (Math.abs(gyro.getYaw() - degree) > .5 && isAutonomous() && autoTimer.get() < 13) {
       System.out.println(gyro.getAngle());
       if (degree > 0) {
         System.out.println("Right" + degree);
@@ -304,8 +302,10 @@ public class Robot extends TimedRobot {
 
     // creates chooser options and displays for primary routines
     routines.addOption("Test", test);
+    routines.addOption("Collect Cargo", getCargo);
+    routines.addOption("Deposit Ball then Fetch Other", depositFirst);
+    routines.addOption("Fetch then Deposit both", fetchFirst);
     routines.addOption("Deposit Cargo and Leave", depositCargoleave);
-    routines.addOption("Get the Cargo", getCargo);
     routines.addOption("Leave Tarmac", leaveTarmac);
     routines.setDefaultOption("Do nothing", Nothing);
     SmartDashboard.putData("Robot Routines", routines);
@@ -316,12 +316,6 @@ public class Robot extends TimedRobot {
     cargoChooser.addOption("Hangar Cargo", hangarCargo);
     cargoChooser.setDefaultOption("Do nothing", Nothing);
     SmartDashboard.putData("Cargo Options", cargoChooser);
-
-    // creates chooser options and displays for order
-    order.addOption("Deposit Ball then Fetch Other", depositFirst);
-    order.addOption("Fetch then Deposit both", fetchFirst);
-    order.setDefaultOption("Do nothing", Nothing);
-    SmartDashboard.putData("Order for Get Cargo", order);
     
     // creates drive train object of differential drive class
     driveTrain = new DifferentialDrive(leftMotor, rightMotor);
@@ -376,15 +370,12 @@ public class Robot extends TimedRobot {
    //autonomous vairables
   int autoDepositRotate;
   int autoFetchRotate;
-  double reverseTime;
-  double forwardTime;
 
   @Override
   public void autonomousInit() {
     //gets selections from smart dashboard
     autoSelected = routines.getSelected();
     autoCargo = cargoChooser.getSelected();
-    autoOrder = order.getSelected();
     
     autoTimer.reset();
     autoTimer.start();
@@ -397,24 +388,17 @@ public class Robot extends TimedRobot {
       case(wallCargo): {
         autoFetchRotate = 0;
         autoDepositRotate = 0;
-        reverseTime = 1.5;
-        forwardTime = 2.1;
       } 
       break;
-
       case(terminalCargo): {
         autoFetchRotate = -35;
         autoDepositRotate = -35;
-        reverseTime = 1.75;
-        forwardTime = 2.1;
       } 
       break;
 
       case(hangarCargo): {
-        autoFetchRotate = 0;//changed from -15
-        autoDepositRotate = 0;
-        reverseTime = 1.75;
-        forwardTime = 2.1;
+        autoFetchRotate = -15;
+        autoDepositRotate = -15;
       } 
       break;
 
@@ -438,10 +422,10 @@ public class Robot extends TimedRobot {
           case(fetchFirst): { //If we choose to fetch the cargo first
             activateIntake();
             activateConveyor();
-            autoMove(reverseTime, -.7);//was 3.5, -.5
+            autoMove(3.5, -.5);
             // deactivateIntakeMotor();
             retractIntake();
-            autoMove(forwardTime, .7);//was 5, .5
+            autoMove(5, .5);
             autoRotate(autoFetchRotate);
             lowShooterSpeed();
             releaseCargo();
@@ -452,7 +436,7 @@ public class Robot extends TimedRobot {
           case(depositFirst): { //If we choose to deposit the cargo first
             lowShooterSpeed();
             activateConveyor();
-            autoMove(1,.7);// was 2, .5
+            autoMove(2,.5);
             autoRotate(autoDepositRotate);
             releaseCargo();
             autoPause(2);
@@ -463,7 +447,7 @@ public class Robot extends TimedRobot {
             else if (autoDepositRotate > 0){
             autoRotate(-autoDepositRotate - 3);}
             activateIntake();
-            autoMove(1.5, -.7);//was 3, -.6
+            autoMove(3, -.6);
             retractIntake();
             autoPause(1.5);
             deactivateIntakeMotor();
@@ -477,7 +461,7 @@ public class Robot extends TimedRobot {
         }
       }
       case leaveTarmac: { //If we choose to simply leave the Tarmac
-        autoMove(1.5, -0.7);//was 2, -.5
+        autoMove(2, -0.5);
         while(isAutonomous());
         }
       break;
@@ -492,7 +476,7 @@ public class Robot extends TimedRobot {
         releaseCargo();
         autoPause(2);
         deactivateShooterMotor();
-        autoMove(2, -.7);//was 3, -.5
+        autoMove(3, -.5);
         while(isAutonomous());
         }
         break;
@@ -538,7 +522,7 @@ public class Robot extends TimedRobot {
     else {
       retractIntake();
     }
-    if (Timer.getFPGATimestamp() > intakeTimer + 2){//increased intake time from 1.5
+    if (Timer.getFPGATimestamp() > intakeTimer + 1.5){
       deactivateIntakeMotor();
     }
       
