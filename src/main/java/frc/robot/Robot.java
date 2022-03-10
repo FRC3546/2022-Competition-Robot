@@ -134,7 +134,6 @@ public class Robot extends TimedRobot {
   // values for which auto routine we are using used when we pull which selector we have choosen
   private String autoSelected;
   private String autoCargo;
-  private String autoOrder;
 
   // chooser for primary routine(defaults as doing nothing)
   private static final String test = "test";
@@ -144,12 +143,14 @@ public class Robot extends TimedRobot {
   private static final String depositCargoleave = "Deposit Cargo then Taxi";
   private static final String depositFirst = "Deposit First";
   private static final String fetchFirst = "Fetch Ball First"; 
+  private static final String threeBall = "Three Ball Cargo";
   private final SendableChooser<String> routines = new SendableChooser<>();
   
   // chooser get cargo(determines which cargo we are going for from set positions)
   private static final String wallCargo = "Wall Cargo";
   private static final String terminalCargo = "Terminal Cargo";
   private static final String hangarCargo = "Hanger Cargo";
+  private static final String NotApplicable = "Not Applicable";
   private final SendableChooser<String> cargoChooser = new SendableChooser<>();
 
   // creates drive train victorSP motor controllers
@@ -307,14 +308,15 @@ public class Robot extends TimedRobot {
     routines.addOption("Fetch then Deposit both", fetchFirst);
     routines.addOption("Deposit Cargo and Leave", depositCargoleave);
     routines.addOption("Leave Tarmac", leaveTarmac);
-    routines.setDefaultOption("Do nothing", Nothing);
+    routines.addOption("Three Ball Cargo", threeBall);
+    routines.setDefaultOption("Do Nothing", Nothing);
     SmartDashboard.putData("Robot Routines", routines);
 
     // creates chooser options and displays for cargo options
     cargoChooser.addOption("Wall Cargo", wallCargo);
     cargoChooser.addOption("Terminal Cargo", terminalCargo);
     cargoChooser.addOption("Hangar Cargo", hangarCargo);
-    cargoChooser.setDefaultOption("Do nothing", Nothing);
+    cargoChooser.setDefaultOption("N/A", NotApplicable);
     SmartDashboard.putData("Cargo Options", cargoChooser);
     
     // creates drive train object of differential drive class
@@ -402,7 +404,7 @@ public class Robot extends TimedRobot {
       } 
       break;
 
-      case(Nothing): {
+      case(NotApplicable): {
         // does nothing
       } 
       break;
@@ -412,63 +414,60 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-
     // runs specific auto routines depending on selected options
     switch (autoSelected) {
-      case getCargo: {
 
-        //Routine For if we choose to get cargo
-        switch(autoOrder) {
-          case(fetchFirst): { //If we choose to fetch the cargo first
-            activateIntake();
-            activateConveyor();
-            autoMove(3.5, -.5);
-            // deactivateIntakeMotor();
-            retractIntake();
-            autoMove(5, .5);
-            autoRotate(autoFetchRotate);
-            lowShooterSpeed();
-            releaseCargo();
-            while(isAutonomous());
-          }
-          break;
-
-          case(depositFirst): { //If we choose to deposit the cargo first
-            lowShooterSpeed();
-            activateConveyor();
-            autoMove(2,.5);
-            autoRotate(autoDepositRotate);
-            releaseCargo();
-            autoPause(2);
-            stopCargo();
-            deactivateShooterMotor();
-            if (autoDepositRotate < 0){
-            autoRotate(-autoDepositRotate + 3);}
-            else if (autoDepositRotate > 0){
-            autoRotate(-autoDepositRotate - 3);}
-            activateIntake();
-            autoMove(3, -.6);
-            retractIntake();
-            autoPause(1.5);
-            deactivateIntakeMotor();
-            while (isAutonomous());
-          }
-          break;
-
-          case(Nothing): {
-            // does nothing
-          }
-        }
+      case(fetchFirst): { //If we choose to fetch the cargo first
+        activateIntake();
+        activateConveyor();
+        autoMove(3.5, -.5);
+        // deactivateIntakeMotor();
+        retractIntake();
+        autoMove(5, .5);
+        autoRotate(autoFetchRotate);
+        lowShooterSpeed();
+        releaseCargo();
+        while(isAutonomous());
       }
+      break;
+
+      case(depositFirst): { //If we choose to deposit the cargo first
+        lowShooterSpeed();
+        activateConveyor();
+        autoMove(2,.5);
+        autoRotate(autoDepositRotate);
+        releaseCargo();
+        autoPause(2);
+        stopCargo();
+        deactivateShooterMotor();
+        if (autoDepositRotate < 0){
+        autoRotate(-autoDepositRotate + 3);}
+        else if (autoDepositRotate > 0){
+        autoRotate(-autoDepositRotate - 3);}
+        activateIntake();
+        autoMove(3, -.6);
+        retractIntake();
+        autoPause(1.5);
+        deactivateIntakeMotor();
+        while (isAutonomous());
+      }
+      break;
+
+      case threeBall: {
+        
+      }
+
       case leaveTarmac: { //If we choose to simply leave the Tarmac
         autoMove(2, -0.5);
         while(isAutonomous());
         }
       break;
+
       case Nothing: {      
         while(isAutonomous());
         }
         break;
+
       case depositCargoleave: { //If we choose to deposit the cargo and then leave the Tarmac
         lowShooterSpeed();
         activateConveyor();
@@ -480,6 +479,7 @@ public class Robot extends TimedRobot {
         while(isAutonomous());
         }
         break;
+
       case test: { //used for testing functions during autonomous periodic
         }
         break;
