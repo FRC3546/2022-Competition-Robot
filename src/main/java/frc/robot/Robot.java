@@ -394,7 +394,7 @@ public class Robot extends TimedRobot {
         autoFetchRotate = 0;
         autoDepositRotate = 0;
         autoFetchBack = 1.5;
-        autoFetchForward = 2.1;
+        autoFetchForward = 1.9;
       } 
       break;
       case(terminalCargo): {
