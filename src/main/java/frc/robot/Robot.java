@@ -31,6 +31,9 @@
  * 3/1/22 JMF: Changed the button layout for the tilting and returning the climber
  * 3/3/22 CF: Will immediately leave all auto loops if within last three seconds of auto period
  * 3/3/22 CF: Decreased speed it reverses at during deposit first 
+ * 3/12/22 CF: Added 3 ball cargo routine
+ * 3/12/22 CF: Added Timer variables for different ball routines
+ * j
  * 
  * 
  * 
@@ -462,7 +465,7 @@ public class Robot extends TimedRobot {
       }
       break;
 
-      case threeBall: {
+      case threeBall: {//gets wall cargo then gets terminal cargo then returns and deposits both cargo pieces
         activateIntake();
         activateConveyor();
         autoMove(1.5, -.7);
