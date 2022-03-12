@@ -140,7 +140,7 @@ public class Robot extends TimedRobot {
 
   // chooser for primary routine(defaults as doing nothing)
   private static final String test = "test";
-  private static final String getCargo = "Collect Cargo";
+  // private static final String getCargo = "Collect Cargo";
   private static final String leaveTarmac = "Leave Tarmac";
   private static final String Nothing = "Do Nothing";
   private static final String depositCargoleave = "Deposit Cargo then Taxi";
@@ -306,7 +306,7 @@ public class Robot extends TimedRobot {
 
     // creates chooser options and displays for primary routines
     routines.addOption("Test", test);
-    routines.addOption("Collect Cargo", getCargo);
+    // routines.addOption("Collect Cargo", getCargo);
     routines.addOption("Deposit Ball then Fetch Other", depositFirst);
     routines.addOption("Fetch then Deposit both", fetchFirst);
     routines.addOption("Deposit Cargo and Leave", depositCargoleave);
@@ -396,23 +396,23 @@ public class Robot extends TimedRobot {
       case(wallCargo): {
         autoFetchRotate = 0;
         autoDepositRotate = 0;
-        autoFetchBack = 1.5;
+        autoFetchBack = 1.25;//changed from 1.5 sec
         autoFetchForward = 1.9;
       } 
       break;
       case(terminalCargo): {
-        autoFetchRotate = -35;
-        autoDepositRotate = -35;
-        autoFetchBack = 1.75;
-        autoFetchForward = 2.1;
+        autoFetchRotate = -30;//decreased from -35
+        autoDepositRotate = -30;
+        autoFetchBack = 1.85;// from 1.75
+        autoFetchForward = 2.35; //changed from 2.1
       } 
       break;
 
       case(hangarCargo): {
-        autoFetchRotate = -15;
-        autoDepositRotate = -15;
+        autoFetchRotate = 0;//changed from 15
+        autoDepositRotate = 0;
         autoFetchBack = 1.75;
-        autoFetchForward = 2.1;
+        autoFetchForward = 1.8; //changed from 2.1
       } 
       break;
 
@@ -468,18 +468,21 @@ public class Robot extends TimedRobot {
       case threeBall: {//gets wall cargo then gets terminal cargo then returns and deposits both cargo pieces
         activateIntake();
         activateConveyor();
-        autoMove(1.5, -.7);
+        autoMove(1.05, -.7);
+        autoPause(.4);
         retractIntake();
-        autoMove(2.1, .7);
+        autoMove(1.6, .7);
+        autoRotate(10);
         lowShooterSpeed();
         releaseCargo();
         autoPause(1.5);
         stopCargo();
-        autoRotate(35);
+        // autoMove(.1, -.7);
+        autoRotate(42);
         activateIntake();
-        autoMove(2.1, -.7);
+        autoMove(2.4, -.7);
         retractIntake();
-        autoMove(2.1, .7);
+        autoMove(2.2, .7);
         autoRotate(-35);
         releaseCargo();
         autoPause(1);
