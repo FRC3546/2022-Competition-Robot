@@ -463,9 +463,31 @@ public class Robot extends TimedRobot {
       break;
 
       case threeBall: {
-        
-      }
+        activateIntake();
+        activateConveyor();
+        autoMove(1.5, -.7);
+        retractIntake();
+        autoMove(2.1, .7);
+        lowShooterSpeed();
+        releaseCargo();
+        autoPause(1.5);
+        stopCargo();
+        autoRotate(35);
+        activateIntake();
+        autoMove(2.1, -.7);
+        retractIntake();
+        autoMove(2.1, .7);
+        autoRotate(-35);
+        releaseCargo();
+        autoPause(1);
+        deactivateIntakeMotor();
+        deactivateConveyor();
+        stopCargo();
+        while(isAutonomous());
 
+
+      }
+      break;
       case leaveTarmac: { //If we choose to simply leave the Tarmac
         autoMove(1.5, -0.7);
         while(isAutonomous());
