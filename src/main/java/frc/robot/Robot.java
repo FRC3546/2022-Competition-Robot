@@ -275,16 +275,21 @@ public class Robot extends TimedRobot {
   public void autoRotate(int degree) {
     gyro.zeroYaw();
 
+
     while (Math.abs(gyro.getYaw() - degree) > 1 && isAutonomous() && autoTimer.get() < 13) {
+
       System.out.println(gyro.getAngle());
-      if (degree > 0) {
+
+      double angleRemaining = (double) (degree - gyro.getYaw());
+
+      if (angleRemaining > 0) {
         System.out.println("Right" + degree);
-        driveTrain.tankDrive(-.85, .85);
-        
+        driveTrain.tankDrive(-.75, .75);
       }
-      if (degree < 0 ) {
+
+      if (angleRemaining < 0 ) {
         System.out.println("Left" + degree);
-        driveTrain.tankDrive(.85, -.85);
+        driveTrain.tankDrive(.75, -.75);
       }
     }
     driveTrain.stopMotor();
@@ -331,7 +336,7 @@ public class Robot extends TimedRobot {
     retractIntake();
 
     // starts camera
-    CameraServer.startAutomaticCapture();
+    // CameraServer.startAutomaticCapture();
   }
 
   /**
@@ -446,7 +451,7 @@ public class Robot extends TimedRobot {
       case(depositFirst): { //If we choose to deposit the cargo first
         lowShooterSpeed();
         activateConveyor();
-        autoMove(1,.7);
+        autoMove(.5,.7);
         autoRotate(autoDepositRotate);
         releaseCargo();
         autoPause(2);
@@ -545,7 +550,7 @@ public class Robot extends TimedRobot {
     updateButtonValues();
 
     // drive train and inverts if inversion is true
-    if (isDriveTrainInverted == true) {
+    if (isDriveTrainInverted == true) {//was true prly change back
       driveTrain.tankDrive(rightDriverController.getY() * -1, leftDriverController.getY() * -1);
     }
     else {
