@@ -281,15 +281,14 @@ public class Robot extends TimedRobot {
       System.out.println(gyro.getAngle());
 
       double angleRemaining = (double) (degree - gyro.getYaw());
-
       if (angleRemaining > 0) {
         System.out.println("Right" + degree);
-        driveTrain.tankDrive(-.75, .75);
+        driveTrain.tankDrive(-.85, .85); //from .75
       }
 
       if (angleRemaining < 0 ) {
         System.out.println("Left" + degree);
-        driveTrain.tankDrive(.75, -.75);
+        driveTrain.tankDrive(.85, -.85);
       }
     }
     driveTrain.stopMotor();
@@ -350,8 +349,8 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
 
     //puts values from code onto smart dashboard
-    SmartDashboard.putBoolean("Connection Status", gyro.isConnected());
-    SmartDashboard.putBoolean("Calibration Status", gyro.isCalibrating());
+    SmartDashboard.putBoolean("Gyro Connection", gyro.isConnected());
+    SmartDashboard.putBoolean("Gyro Calibration", gyro.isCalibrating());
     SmartDashboard.putNumber("Gyro Angle", gyro.getYaw());
     SmartDashboard.putData("Gyro", gyro);
 
@@ -477,17 +476,17 @@ public class Robot extends TimedRobot {
         autoPause(.4);
         retractIntake();
         autoMove(1.6, .7);
-        autoRotate(10);
+        autoRotate(8);//from 10
         lowShooterSpeed();
         releaseCargo();
         autoPause(1.5);
         stopCargo();
         // autoMove(.1, -.7);
-        autoRotate(42);
+        autoRotate(30);//from 42 then 40 then 38
         activateIntake();
         autoMove(2.4, -.7);
         retractIntake();
-        autoMove(2.2, .7);
+        autoMove(2.4, .7); //was 2.2
         autoRotate(-35);
         releaseCargo();
         autoPause(1);
