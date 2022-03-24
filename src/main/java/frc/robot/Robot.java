@@ -76,10 +76,19 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 // camera server import
-import edu.wpi.first.cameraserver.CameraServer;
+// import edu.wpi.first.cameraserver.CameraServer;
 
 // timer import
 import edu.wpi.first.wpilibj.Timer;
+
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
+
+
+
+
+
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -89,6 +98,8 @@ import edu.wpi.first.wpilibj.Timer;
  */
 
 public class Robot extends TimedRobot {
+
+  
   
   //creates drive train object of differential drive class
   private DifferentialDrive driveTrain;
@@ -133,6 +144,12 @@ public class Robot extends TimedRobot {
   private final Timer autoTimer = new Timer();
 
   private double intakeTimer;
+
+
+  NetworkTable table = NetworkTableInstance.getDefault().getTable("Limelight");
+  NetworkTableEntry tx = table.getEntry("tx");
+  NetworkTableEntry ty = table.getEntry("ty");
+  NetworkTableEntry ta = table.getEntry("ta");
 
   // values for which auto routine we are using used when we pull which selector we have choosen
   private String autoSelected;
@@ -272,6 +289,15 @@ public class Robot extends TimedRobot {
     driveTrain.stopMotor();
   }
 
+  public void limelightTracking() {
+    double offX = tx.getDouble(0.0);
+    double offY = ty.getDouble(0.0);
+    double area = ta.getDouble(0.0);
+
+    
+
+  }
+
   public void autoRotate(int degree) {
     gyro.zeroYaw();
 
@@ -292,6 +318,8 @@ public class Robot extends TimedRobot {
       }
     }
     driveTrain.stopMotor();
+
+
   }
 
   /**
@@ -538,6 +566,7 @@ public class Robot extends TimedRobot {
     returnClimber();
     isClimberActivated = false;
     isDriveTrainInverted = false;
+
 
   }
 
