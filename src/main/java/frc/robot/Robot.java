@@ -33,7 +33,8 @@
  * 3/3/22 CF: Decreased speed it reverses at during deposit first 
  * 3/12/22 CF: Added 3 ball cargo routine
  * 3/12/22 CF: Added Timer variables for different ball routines
- * j
+ * 3/24/22 CF & JF: Added Limelight Auto Routines
+ * 3/24/22 CF & JF: Reformatted gyro system 
  * 
  * 
  * 
@@ -60,6 +61,10 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+
+import java.lang.module.ModuleDescriptor.Modifier;
+
+import javax.xml.namespace.QName;
 
 // import for the Nav X gyro
 import com.kauailabs.navx.frc.AHRS;
@@ -170,6 +175,8 @@ public class Robot extends TimedRobot {
   private static final String wallCargo = "Wall Cargo";
   private static final String terminalCargo = "Terminal Cargo";
   private static final String hangarCargo = "Hanger Cargo";
+  private static final String red = "red";
+  private static final String blue = "blue";
   private static final String NotApplicable = "Not Applicable";
   private final SendableChooser<String> cargoChooser = new SendableChooser<>();
 
@@ -289,33 +296,84 @@ public class Robot extends TimedRobot {
     driveTrain.stopMotor();
   }
 
-  public void limelightTracking() {
-    double offX = tx.getDouble(0.0);
-    double offY = ty.getDouble(0.0);
-    double area = ta.getDouble(0.0);
+  public void limelightRotate() {
+     
+    double offXoriginal = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0);
+     
 
-    
+    while (Math.abs(offXoriginal) > 1 && isAutonomous()) {
+
+      double offX = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0);
+
+      System.out.println(offX);
+
+      double angleRemaining = (double) (offX);
+      if (angleRemaining > 0) {
+        System.out.println("Right" + offX);
+        driveTrain.tankDrive(-.85, .85); //from .75 //turns left
+      }
+
+      if (angleRemaining < 0 ) {
+        System.out.println("Left" + offX);
+        driveTrain.tankDrive(.85, -.85); //turns right
+      }
+    }
+    driveTrain.stopMotor();
 
   }
 
+  public void limelightMove(double time, double speed) {
+    // double autoHeading = gyro.getAngle();
+    // double error;
+    double rightMod;
+    double leftMod;
+
+    double offX = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0);
+
+    double autoForwardStart = Timer.getFPGATimestamp();
+
+    while (Timer.getFPGATimestamp() < (autoForwardStart + time) && isAutonomous() && autoTimer.get() < 13) {
+
+    offX = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0);
+
+    if (offX > 1 ){
+      rightMod = .8;
+      leftMod = 1;
+    }
+    else if (offX < -1){
+      rightMod = 1;
+      leftMod = .8;
+    }
+    else{
+      rightMod = 1;
+      leftMod = 1;
+    }
+
+      // error = autoHeading - gyro.getAngle();
+      driveTrain.tankDrive(-1 * speed * leftMod, -1 * speed * rightMod);
+    }
+    driveTrain.stopMotor();
+  }
+
   public void autoRotate(int degree) {
-    gyro.zeroYaw();
+    
+    double currentYaw = gyro.getYaw();
 
-
-    while (Math.abs(gyro.getYaw() - degree) > 1 && isAutonomous() && autoTimer.get() < 13) {
+    while (Math.abs(currentYaw - degree) > 1 && isAutonomous() && autoTimer.get() < 13) {
 
       System.out.println(gyro.getAngle());
 
-      double angleRemaining = (double) (degree - gyro.getYaw());
+      double angleRemaining = (double) (degree - currentYaw);
       if (angleRemaining > 0) {
         System.out.println("Right" + degree);
         driveTrain.tankDrive(-.85, .85); //from .75
       }
-
-      if (angleRemaining < 0 ) {
+      else if (angleRemaining < 0 ) {
         System.out.println("Left" + degree);
         driveTrain.tankDrive(.85, -.85);
       }
+      currentYaw = gyro.getYaw();
+
     }
     driveTrain.stopMotor();
 
@@ -351,6 +409,8 @@ public class Robot extends TimedRobot {
     cargoChooser.addOption("Wall Cargo", wallCargo);
     cargoChooser.addOption("Terminal Cargo", terminalCargo);
     cargoChooser.addOption("Hangar Cargo", hangarCargo);
+    cargoChooser.addOption("Red", red);
+    cargoChooser.addOption("Blue", blue);
     cargoChooser.setDefaultOption("N/A", NotApplicable);
     SmartDashboard.putData("Cargo Options", cargoChooser);
     
@@ -417,6 +477,8 @@ public class Robot extends TimedRobot {
     autoSelected = routines.getSelected();
     autoCargo = cargoChooser.getSelected();
     
+    gyro.zeroYaw();
+
     autoTimer.reset();
     autoTimer.start();
     // autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
@@ -446,6 +508,16 @@ public class Robot extends TimedRobot {
         autoFetchBack = 1.75;
         autoFetchForward = 1.8; //changed from 2.1
       } 
+      break;
+
+      case(red): {
+
+      }
+      break;
+
+      case(blue): {
+
+      }
       break;
 
       case(NotApplicable): {
@@ -550,6 +622,31 @@ public class Robot extends TimedRobot {
         break;
 
       case test: { //used for testing functions during autonomous periodic
+        limelightRotate();
+        // activateIntake();
+        // activateConveyor();
+        // autoMove(1.05, -.7);
+        // autoPause(.4);
+        // retractIntake();
+        // autoMove(1.6, .7);
+        // autoRotate(8);//from 10
+        // lowShooterSpeed();
+        // releaseCargo();
+        // autoPause(1.5);
+        // stopCargo();
+        // // autoMove(.1, -.7);
+        // autoRotate(30);//from 42 then 40 then 38
+        // activateIntake();
+        // autoMove(2.4, -.7);
+        // retractIntake();
+        // autoMove(2.4, .7); //was 2.2
+        // autoRotate(-35);
+        // releaseCargo();
+        // autoPause(1);
+        // deactivateIntakeMotor();
+        // deactivateConveyor();
+        // stopCargo();
+        while(isAutonomous());
         }
         break;
       }
