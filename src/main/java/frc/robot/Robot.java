@@ -83,7 +83,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 // camera server import
-// import edu.wpi.first.cameraserver.CameraServer;
+//import edu.wpi.first.cameraserver.CameraServer;
 
 // timer import
 import edu.wpi.first.wpilibj.Timer;
@@ -116,8 +116,10 @@ public class Robot extends TimedRobot {
   private Joystick rightDriverController = new Joystick(1);
   private Joystick coDriverController = new Joystick(2);
   
+  //intake button
+  private JoystickButton intakeButton = new JoystickButton(coDriverController, 10);
+
   // Driver right controller buttons
-  private JoystickButton intakeButton = new JoystickButton(rightDriverController, 1);
   private JoystickButton driveTrainReturnButton = new JoystickButton(rightDriverController, 6);
   private JoystickButton driveTrainInvertButton = new JoystickButton(rightDriverController, 7);
   
@@ -454,7 +456,7 @@ public class Robot extends TimedRobot {
     retractIntake();
 
     // starts camera
-    // CameraServer.startAutomaticCapture();
+    //CameraServer.startAutomaticCapture();
   }
 
   /**
@@ -678,11 +680,12 @@ public class Robot extends TimedRobot {
         autoPause(1.5);
         stopCargo();
         autoRotate(30);//from 42 then 40 then 38
-        activateIntake();
         autoMove(1.4, -.7);
         limelightRotate();
+        activateIntake();
         autoMove(1, -.7);
         retractIntake();
+        trueRotate(70);
         autoMove(2.4, .7); //was 2.2
         trueRotate(10);
         releaseCargo();
