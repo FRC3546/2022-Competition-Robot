@@ -1,4 +1,3 @@
-
 // Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
@@ -36,9 +35,9 @@
  * 3/12/22 CF: Added Timer variables for different ball routines
  * 3/24/22 CF & JF: Added Limelight Auto Routines
  * 3/24/22 CF & JF: Reformatted gyro system 
- * 
- * 
- * 
+ * 3/25/22 CF: Added True Rotate 
+ * 3/25/22 CF: Fixed Relative Rotate So accuracy should be increased
+ *
  * 
  * 
  * 
@@ -63,9 +62,11 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 
-import java.lang.module.ModuleDescriptor.Modifier;
+import javax.print.attribute.standard.MediaSize.NA;
 
-import javax.xml.namespace.QName;
+// import java.lang.module.ModuleDescriptor.Modifier;
+
+// import javax.xml.namespace.QName;
 
 // import for the Nav X gyro
 import com.kauailabs.navx.frc.AHRS;
@@ -160,6 +161,7 @@ public class Robot extends TimedRobot {
   // values for which auto routine we are using used when we pull which selector we have choosen
   private String autoSelected;
   private String autoCargo;
+  private String autoLimelight;
 
   // chooser for primary routine(defaults as doing nothing)
   private static final String test = "test";
@@ -176,10 +178,13 @@ public class Robot extends TimedRobot {
   private static final String wallCargo = "Wall Cargo";
   private static final String terminalCargo = "Terminal Cargo";
   private static final String hangarCargo = "Hanger Cargo";
-  private static final String red = "red";
-  private static final String blue = "blue";
   private static final String NotApplicable = "Not Applicable";
   private final SendableChooser<String> cargoChooser = new SendableChooser<>();
+
+  private static final String red = "red";
+  private static final String blue = "blue";
+  private static final String NA = "Not Applicable";
+  private static final SendableChooser<String> limelightChooser = new SendableChooser<>();
 
   // creates drive train victorSP motor controllers
   private VictorSP leftMotor = new VictorSP(0);
@@ -297,14 +302,59 @@ public class Robot extends TimedRobot {
     driveTrain.stopMotor();
   }
 
+  public void autoRotate(int degree) {
+
+    double startingYaw = gyro.getYaw();
+    double targetAngle = startingYaw + degree;
+
+
+    while (Math.abs(targetAngle - gyro.getAngle()) > 1 && isAutonomous() && autoTimer.get() < 13) {
+
+      System.out.println(gyro.getAngle());
+
+      double angleRemaining = (double) (targetAngle - gyro.getAngle());
+      
+      if (angleRemaining > 0) {
+        System.out.println("Right" + degree);
+        driveTrain.tankDrive(-.85, .85); //from .75
+      }
+      else if (angleRemaining < 0 ) {
+        System.out.println("Left" + degree);
+        driveTrain.tankDrive(.85, -.85);
+      }
+    }
+    driveTrain.stopMotor();
+  }
+
+  public void trueRotate(int degree){
+
+    while (Math.abs(degree - gyro.getAngle()) > 1 && isAutonomous() && autoTimer.get() < 13) {
+
+      System.out.println(gyro.getAngle());
+
+      double angleRemaining = (double) (degree - gyro.getAngle());
+      
+      if (angleRemaining > 0) {
+        System.out.println("Right" + degree);
+        driveTrain.tankDrive(-.85, .85); //from .75
+      }
+      else if (angleRemaining < 0 ) {
+        System.out.println("Left" + degree);
+        driveTrain.tankDrive(.85, -.85);
+      }
+    }
+    driveTrain.stopMotor();
+  }
+
+
   public void limelightRotate() {
      
-    double offXoriginal = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0);
+    double offX = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0);
      
 
-    while (Math.abs(offXoriginal) > 1 && isAutonomous()) {
+    while (Math.abs(offX) > 2.5 && isAutonomous()) {
 
-      double offX = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0);
+      offX = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0);
 
       System.out.println(offX);
 
@@ -356,30 +406,7 @@ public class Robot extends TimedRobot {
     driveTrain.stopMotor();
   }
 
-  public void autoRotate(int degree) {
-    
-    double currentYaw = gyro.getYaw();
 
-    while (Math.abs(currentYaw - degree) > 1 && isAutonomous() && autoTimer.get() < 13) {
-
-      System.out.println(gyro.getAngle());
-
-      double angleRemaining = (double) (degree - currentYaw);
-      if (angleRemaining > 0) {
-        System.out.println("Right" + degree);
-        driveTrain.tankDrive(-.85, .85); //from .75
-      }
-      else if (angleRemaining < 0 ) {
-        System.out.println("Left" + degree);
-        driveTrain.tankDrive(.85, -.85);
-      }
-      currentYaw = gyro.getYaw();
-
-    }
-    driveTrain.stopMotor();
-
-
-  }
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -410,11 +437,14 @@ public class Robot extends TimedRobot {
     cargoChooser.addOption("Wall Cargo", wallCargo);
     cargoChooser.addOption("Terminal Cargo", terminalCargo);
     cargoChooser.addOption("Hangar Cargo", hangarCargo);
-    cargoChooser.addOption("Red", red);
-    cargoChooser.addOption("Blue", blue);
     cargoChooser.setDefaultOption("N/A", NotApplicable);
     SmartDashboard.putData("Cargo Options", cargoChooser);
-    
+
+    limelightChooser.addOption("Red", red);
+    limelightChooser.addOption("Blue", blue);
+    limelightChooser.setDefaultOption("Not Applicable", NA);
+    SmartDashboard.putData("Limelight Options", limelightChooser);
+
     // creates drive train object of differential drive class
     driveTrain = new DifferentialDrive(leftMotor, rightMotor);
 
@@ -437,6 +467,8 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
 
+
+
     //puts values from code onto smart dashboard
     SmartDashboard.putBoolean("Gyro Connection", gyro.isConnected());
     SmartDashboard.putBoolean("Gyro Calibration", gyro.isCalibrating());
@@ -451,7 +483,9 @@ public class Robot extends TimedRobot {
     SmartDashboard.putString("Shooter Value", shooterValue);
     
     //updates vales for smart dashboard
-    SmartDashboard.updateValues();
+
+
+      SmartDashboard.updateValues();
   }
 
   /**
@@ -475,12 +509,11 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
 
-    NetworkTableInstance.getDefault().getTable("limelight").getEntry("camMode").setNumber(0);
-
     //gets selections from smart dashboard
     autoSelected = routines.getSelected();
     autoCargo = cargoChooser.getSelected();
-    
+    autoLimelight = limelightChooser.getSelected();
+
     gyro.zeroYaw();
 
     autoTimer.reset();
@@ -514,24 +547,27 @@ public class Robot extends TimedRobot {
       } 
       break;
 
-      case(red): {
-
-        NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline").setNumber(1);
-
-      }
-      break;
-
-      case(blue): {
-
-        NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline").setNumber(0);
-
-      }
-      break;
-
       case(NotApplicable): {
         // does nothing
       } 
       break;
+    }
+
+    
+    switch(autoLimelight){
+      case(red): {
+        NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline").setNumber(1);
+      }
+      break;
+
+      case(blue): {
+        NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline").setNumber(0);
+      }
+      break;
+
+      case(NA): {
+        NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline").setNumber(2);
+      }
     }
   }
 
@@ -630,30 +666,30 @@ public class Robot extends TimedRobot {
         break;
 
       case test: { //used for testing functions during autonomous periodic
+        activateIntake();
+        activateConveyor();
+        autoMove(1.05, -.7);
+        autoPause(.4);
+        retractIntake();
+        autoMove(1.6, .7);
+        autoRotate(8);//from 10
+        lowShooterSpeed();
+        releaseCargo();
+        autoPause(1.5);
+        stopCargo();
+        autoRotate(30);//from 42 then 40 then 38
+        activateIntake();
+        autoMove(1.4, -.7);
         limelightRotate();
-        // activateIntake();
-        // activateConveyor();
-        // autoMove(1.05, -.7);
-        // autoPause(.4);
-        // retractIntake();
-        // autoMove(1.6, .7);
-        // autoRotate(8);//from 10
-        // lowShooterSpeed();
-        // releaseCargo();
-        // autoPause(1.5);
-        // stopCargo();
-        // // autoMove(.1, -.7);
-        // autoRotate(30);//from 42 then 40 then 38
-        // activateIntake();
-        // autoMove(2.4, -.7);
-        // retractIntake();
-        // autoMove(2.4, .7); //was 2.2
-        // autoRotate(-35);
-        // releaseCargo();
-        // autoPause(1);
-        // deactivateIntakeMotor();
-        // deactivateConveyor();
-        // stopCargo();
+        autoMove(1, -.7);
+        retractIntake();
+        autoMove(2.4, .7); //was 2.2
+        trueRotate(10);
+        releaseCargo();
+        autoPause(1);
+        deactivateIntakeMotor();
+        deactivateConveyor();
+        stopCargo();
         while(isAutonomous());
         }
         break;
@@ -663,10 +699,9 @@ public class Robot extends TimedRobot {
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {
+
+    NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline").setNumber(2);
     
-    NetworkTableInstance.getDefault().getTable("limelight").getEntry("camMode").setNumber(1);
-
-
     //These commands set everything off/default for when control is transfered to human players
     deactivateConveyor();
     deactivateShooterMotor();
