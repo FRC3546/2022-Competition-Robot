@@ -289,63 +289,70 @@ public class Robot extends TimedRobot {
   }
 
   public void autoPause(double time) {
-    double pauseStart = Timer.getFPGATimestamp();
-    while (Timer.getFPGATimestamp() <= (pauseStart + time) && isAutonomous() && autoTimer.get() < 13);
+    double pauseStart = autoTimer.get();
+    while (autoTimer.get() <= (pauseStart + time) && isAutonomous());
   }
 
   public void autoMove(double time, double speed) {
     // double autoHeading = gyro.getAngle();
     // double error;
     double autoForwardStart = Timer.getFPGATimestamp();
-    while (Timer.getFPGATimestamp() < (autoForwardStart + time) && isAutonomous() && autoTimer.get() < 13) {
+    while (Timer.getFPGATimestamp() < (autoForwardStart + time) && isAutonomous() && autoTimer.get() < 20) {
       // error = autoHeading - gyro.getAngle();
       driveTrain.tankDrive(-1 * speed, -1 * speed);
     }
     driveTrain.stopMotor();
   }
 
-  public void autoRotate(int degree) {
+  public void autoRotate(int degree, double power) {
 
     double startingYaw = gyro.getYaw();
     double targetAngle = startingYaw + degree;
 
+      // double power = .75;
 
-    while (Math.abs(targetAngle - gyro.getAngle()) > 1 && isAutonomous() && autoTimer.get() < 13) {
+    while (Math.abs(targetAngle - gyro.getAngle()) > .5 && isAutonomous() && autoTimer.get() < 20) {
 
       System.out.println(gyro.getAngle());
 
       double angleRemaining = (double) (targetAngle - gyro.getAngle());
       
+
+
       if (angleRemaining > 0) {
         System.out.println("Right" + degree);
-        driveTrain.tankDrive(-.85, .85); //from .75
+        driveTrain.tankDrive(-power, power); //from .75
       }
       else if (angleRemaining < 0 ) {
         System.out.println("Left" + degree);
-        driveTrain.tankDrive(.85, -.85);
+        driveTrain.tankDrive(power, -power);
       }
     }
+
+
+    // double backRotateStart = autoTimer.get();
+    // while (backRotateStart + .2 > autoTimer.get()){
+    //   if(degree > 0){
+    //     System.out.println("Left" + degree);
+    //     driveTrain.tankDrive(power, -power);
+    //   }
+    //   else if (degree < 0){
+    //     System.out.println("Right" + degree);
+    //     driveTrain.tankDrive(-power, power);
+    //   }
+    // }
+
     driveTrain.stopMotor();
   }
 
-  public void trueRotate(int degree){
+  public void autoRotate(int degree) {
 
-    while (Math.abs(degree - gyro.getAngle()) > 1 && isAutonomous() && autoTimer.get() < 13) {
-
-      System.out.println(gyro.getAngle());
-
-      double angleRemaining = (double) (degree - gyro.getAngle());
-      
-      if (angleRemaining > 0) {
-        System.out.println("Right" + degree);
-        driveTrain.tankDrive(-.85, .85); //from .75
-      }
-      else if (angleRemaining < 0 ) {
-        System.out.println("Left" + degree);
-        driveTrain.tankDrive(.85, -.85);
-      }
+    autoRotate(degree, .75);
     }
-    driveTrain.stopMotor();
+
+  public void trueRotate(int trueDegree){
+    autoRotate(trueDegree + (int)(gyro.getYaw()));
+    
   }
 
 
@@ -618,22 +625,26 @@ public class Robot extends TimedRobot {
       case threeBall: {//gets wall cargo then gets terminal cargo then returns and deposits both cargo pieces
         activateIntake();
         activateConveyor();
-        autoMove(1.05, -.7);
+        autoMove(1.05, -.6);
         autoPause(.4);
         retractIntake();
-        autoMove(1.6, .7);
-        autoRotate(8);//from 10
+        autoMove(1.7, .6);
+        autoMove(.2, -.2);
+        autoRotate(17, .65);//from 10
+        autoPause(1);
         lowShooterSpeed();
         releaseCargo();
         autoPause(1.5);
         stopCargo();
         // autoMove(.1, -.7);
-        autoRotate(30);//from 42 then 40 then 38
+        autoRotate(25, .65);//from 42 then 40 then 38
+        autoPause(1);
         activateIntake();
-        autoMove(2.4, -.7);
+        autoMove(1.6, -.7);
         retractIntake();
-        autoMove(2.4, .7); //was 2.2
-        autoRotate(-35);
+        autoPause(1);
+        autoMove(2.2, .7); //was 2.2
+        autoRotate(-35, .65);
         releaseCargo();
         autoPause(1);
         deactivateIntakeMotor();
@@ -670,11 +681,12 @@ public class Robot extends TimedRobot {
       case test: { //used for testing functions during autonomous periodic
         activateIntake();
         activateConveyor();
-        autoMove(1.05, -.7);
+        autoMove(.95, -.7);
         autoPause(.4);
         retractIntake();
         autoMove(1.6, .7);
         autoRotate(8);//from 10
+        autoPause(3);
         lowShooterSpeed();
         releaseCargo();
         autoPause(1.5);
