@@ -311,7 +311,7 @@ public class Robot extends TimedRobot {
 
       // double power = .75;
 
-    while (Math.abs(targetAngle - gyro.getAngle()) > .5 && isAutonomous() && autoTimer.get() < 20) {
+    while (Math.abs(targetAngle - gyro.getAngle()) > 1 && isAutonomous() && autoTimer.get() < 20) {
 
       System.out.println(gyro.getAngle());
 
@@ -347,7 +347,7 @@ public class Robot extends TimedRobot {
 
   public void autoRotate(int degree) {
 
-    autoRotate(degree, .75);
+    autoRotate(degree, .65);
     }
 
   public void trueRotate(int trueDegree){
@@ -534,10 +534,10 @@ public class Robot extends TimedRobot {
     //These are the rotation angles used for shooting into the lower hub based on whichever ball we are collecting.
     switch(autoCargo) {
       case(wallCargo): {
-        autoFetchRotate = 0;
-        autoDepositRotate = 0;
-        autoFetchBack = 1.25;//changed from 1.5 sec
-        autoFetchForward = 1.9;
+        autoFetchRotate = 17;
+        autoDepositRotate = 17;
+        autoFetchBack = 1.15;//changed from 1.5 sec //from 1.25
+        autoFetchForward = 1.9; //from 1.9
       } 
       break;
       case(terminalCargo): {
@@ -552,7 +552,7 @@ public class Robot extends TimedRobot {
         autoFetchRotate = 0;//changed from 15
         autoDepositRotate = 0;
         autoFetchBack = 1.75;
-        autoFetchForward = 1.8; //changed from 2.1
+        autoFetchForward = 1.85; //changed from 2.1
       } 
       break;
 
@@ -589,11 +589,14 @@ public class Robot extends TimedRobot {
       case(fetchFirst): { //If we choose to fetch the cargo first
         activateIntake();
         activateConveyor();
-        autoMove(autoFetchBack, -.7);
+        autoMove(autoFetchBack, -.6);
+        autoPause(.4);
         // deactivateIntakeMotor();
         retractIntake();
-        autoMove(autoFetchForward, .7);
-        autoRotate(autoFetchRotate);
+        autoMove(autoFetchForward, .6);
+        autoMove(.2, -.2);
+        autoRotate(autoFetchRotate, .65);
+        autoPause(1);
         lowShooterSpeed();
         releaseCargo();
         while(isAutonomous());
@@ -637,14 +640,14 @@ public class Robot extends TimedRobot {
         autoPause(1.5);
         stopCargo();
         // autoMove(.1, -.7);
-        autoRotate(25, .65);//from 42 then 40 then 38
+        autoRotate(50, .65);//from 42 then 40 then 38
         autoPause(1);
         activateIntake();
         autoMove(1.6, -.7);
         retractIntake();
         autoPause(1);
-        autoMove(2.2, .7); //was 2.2
-        autoRotate(-35, .65);
+        autoMove(2.3, .7); //was 2.2
+        autoRotate(-45, .65);
         releaseCargo();
         autoPause(1);
         deactivateIntakeMotor();
