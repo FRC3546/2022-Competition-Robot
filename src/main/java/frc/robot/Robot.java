@@ -118,6 +118,7 @@ public class Robot extends TimedRobot {
   
   //intake button
   private JoystickButton intakeButton = new JoystickButton(coDriverController, 10);
+  private JoystickButton secondIntakeButton = new JoystickButton(rightDriverController, 1);
 
   // Driver right controller buttons
   private JoystickButton driveTrainReturnButton = new JoystickButton(rightDriverController, 6);
@@ -166,14 +167,14 @@ public class Robot extends TimedRobot {
   private String autoLimelight;
 
   // chooser for primary routine(defaults as doing nothing)
-  private static final String test = "test";
+  private static final String redThree = "Red Three";
   // private static final String getCargo = "Collect Cargo";
   private static final String leaveTarmac = "Leave Tarmac";
   private static final String Nothing = "Do Nothing";
   private static final String depositCargoleave = "Deposit Cargo then Taxi";
   private static final String depositFirst = "Deposit First";
   private static final String fetchFirst = "Fetch Ball First"; 
-  private static final String threeBall = "Three Ball Cargo";
+  private static final String blueThree = "Blue Three";
   private final SendableChooser<String> routines = new SendableChooser<>();
   
   // chooser get cargo(determines which cargo we are going for from set positions)
@@ -297,7 +298,7 @@ public class Robot extends TimedRobot {
     // double autoHeading = gyro.getAngle();
     // double error;
     double autoForwardStart = Timer.getFPGATimestamp();
-    while (Timer.getFPGATimestamp() < (autoForwardStart + time) && isAutonomous() && autoTimer.get() < 20) {
+    while (Timer.getFPGATimestamp() < (autoForwardStart + time) && isAutonomous() && autoTimer.get() < 13) {
       // error = autoHeading - gyro.getAngle();
       driveTrain.tankDrive(-1 * speed, -1 * speed);
     }
@@ -311,7 +312,7 @@ public class Robot extends TimedRobot {
 
       // double power = .75;
 
-    while (Math.abs(targetAngle - gyro.getAngle()) > 1 && isAutonomous() && autoTimer.get() < 20) {
+    while (Math.abs(targetAngle - gyro.getAngle()) > 1 && isAutonomous() && autoTimer.get() < 13) {
 
       System.out.println(gyro.getAngle());
 
@@ -432,13 +433,12 @@ public class Robot extends TimedRobot {
     climberMotor.setInverted(true);
 
     // creates chooser options and displays for primary routines
-    routines.addOption("Test", test);
-    // routines.addOption("Collect Cargo", getCargo);
+    routines.addOption("Red Three", redThree);
     routines.addOption("Deposit Ball then Fetch Other", depositFirst);
     routines.addOption("Fetch then Deposit both", fetchFirst);
     routines.addOption("Deposit Cargo and Leave", depositCargoleave);
     routines.addOption("Leave Tarmac", leaveTarmac);
-    routines.addOption("Three Ball Cargo", threeBall);
+    routines.addOption("Blue Three", blueThree);
     routines.setDefaultOption("Do Nothing", Nothing);
     SmartDashboard.putData("Robot Routines", routines);
 
@@ -595,7 +595,7 @@ public class Robot extends TimedRobot {
         retractIntake();
         autoMove(autoFetchForward, .6);
         autoMove(.2, -.2);
-        autoRotate(autoFetchRotate, .65);
+        autoRotate(autoFetchRotate, .75);
         autoPause(1);
         lowShooterSpeed();
         releaseCargo();
@@ -625,7 +625,7 @@ public class Robot extends TimedRobot {
       }
       break;
 
-      case threeBall: {//gets wall cargo then gets terminal cargo then returns and deposits both cargo pieces
+      case blueThree: {//gets wall cargo then gets terminal cargo then returns and deposits both cargo pieces
         activateIntake();
         activateConveyor();
         autoMove(1.05, -.6);
@@ -633,14 +633,14 @@ public class Robot extends TimedRobot {
         retractIntake();
         autoMove(1.7, .6);
         autoMove(.2, -.2);
-        autoRotate(17, .65);//from 10
+        autoRotate(17, .75);//from 10
         autoPause(1);
         lowShooterSpeed();
         releaseCargo();
         autoPause(1.5);
         stopCargo();
         // autoMove(.1, -.7);
-        autoRotate(50, .65);//from 42 then 40 then 38
+        autoRotate(50, .75);//from 42 then 40 then 38
         autoPause(1);
         activateIntake();
         autoMove(1.6, -.7);
@@ -681,34 +681,36 @@ public class Robot extends TimedRobot {
         }
         break;
 
-      case test: { //used for testing functions during autonomous periodic
+      case redThree: { //used for testing functions during autonomous periodic
         activateIntake();
         activateConveyor();
-        autoMove(.95, -.7);
+        autoMove(1.05, -.6);
         autoPause(.4);
         retractIntake();
-        autoMove(1.6, .7);
-        autoRotate(8);//from 10
-        autoPause(3);
+        autoMove(1.7, .6);
+        autoMove(.2, -.2);
+        autoRotate(17, .75);//from 10
+        autoPause(1);
         lowShooterSpeed();
         releaseCargo();
         autoPause(1.5);
         stopCargo();
-        autoRotate(30);//from 42 then 40 then 38
-        autoMove(1.4, -.7);
-        limelightRotate();
+        // autoMove(.1, -.7);
+        autoRotate(30, .85);//from 42 then 40 then 38
+        autoPause(1);
         activateIntake();
-        autoMove(1, -.7);
+        autoMove(1.6, -.7);
         retractIntake();
-        trueRotate(70);
-        autoMove(2.4, .7); //was 2.2
-        trueRotate(10);
+        autoPause(1);
+        autoMove(2.3, .7); //was 2.2
+        autoRotate(-45, .65);
         releaseCargo();
         autoPause(1);
         deactivateIntakeMotor();
         deactivateConveyor();
         stopCargo();
         while(isAutonomous());
+
         }
         break;
       }
@@ -747,7 +749,7 @@ public class Robot extends TimedRobot {
     }
 
     // checks if intake should be on then runs corresponding method
-    if (intakeButton.get() && isClimberActivated == false) {
+    if ((intakeButton.get() || secondIntakeButton.get()) && isClimberActivated == false) {
       activateIntake();
     }
     else {
@@ -801,7 +803,7 @@ public class Robot extends TimedRobot {
       climberMotor.set(coDriverController.getY());
     }
     else{
-      climberMotor.stopMotor();
+      climberMotor.set(.20);
     }
   }
 
